@@ -1044,8 +1044,8 @@ function renderDatesList() {
     const past = n < 0;
     const dotCls = 'date-dot-' + d.type;
     return `<div class="date-item" style="${past ? 'opacity:0.45' : ''}">
-      <span class="date-dot ${dotCls}"></span>
-      <div class="date-body">
+      <span class="date-dot ${dotCls}" style="flex-shrink:0;margin-top:5px"></span>
+      <div class="date-body" onclick="editDate('${d.id}')" style="cursor:pointer">
         <div class="date-title">${esc(d.title)}</div>
         <div class="date-meta">${fmtDate(d.date)}${n === 0 ? ' · today' : n > 0 ? ' · in ' + n + ' days' : ' · ' + Math.abs(n) + ' days ago'}${d.notes ? ' · ' + esc(d.notes) : ''}</div>
       </div>
@@ -1112,6 +1112,20 @@ function openDateModal() {
   document.getElementById('fd-date').value = new Date().toISOString().split('T')[0];
   document.getElementById('fd-type').value = 'meeting';
   document.getElementById('fd-notes').value = '';
+  document.getElementById('date-modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('fd-title').focus(), 50);
+}
+
+function editDate(id) {
+  const dates = loadDates();
+  const d = dates.find(d => d.id === id);
+  if (!d) return;
+  editingDateId = id;
+  document.getElementById('date-modal-title').textContent = 'Edit key date';
+  document.getElementById('fd-title').value = d.title;
+  document.getElementById('fd-date').value = d.date;
+  document.getElementById('fd-type').value = d.type;
+  document.getElementById('fd-notes').value = d.notes || '';
   document.getElementById('date-modal-overlay').classList.add('open');
   setTimeout(() => document.getElementById('fd-title').focus(), 50);
 }
