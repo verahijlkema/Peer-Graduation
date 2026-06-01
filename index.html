@@ -624,10 +624,10 @@
 <script>
 const START_DATE = new Date('2025-06-02T00:00:00');
 let PHASES = [
-  {id:'discovery', label:'Discovery', weeks:'wk 1–6', color:'#AFA9EC', text:'#26215C', bg:'#EEEDFC', weeks_arr:[1,2,3,4,5,6], desc:'Contextual research, interviews, patient journey'},
-  {id:'framing',   label:'Framing',   weeks:'wk 7–10', color:'#5DCAA5', text:'#04342C', bg:'#E0F5EE', weeks_arr:[7,8,9,10], desc:'Synthesis, design principles, PROMs architecture'},
-  {id:'ideation',  label:'Ideation',  weeks:'wk 11–14', color:'#EF9F27', text:'#412402', bg:'#FDF0D5', weeks_arr:[11,12,13,14], desc:'Visual language, AI strategy, concept development'},
-  {id:'prototype', label:'Prototype + test', weeks:'wk 15–20', color:'#ED93B1', text:'#4B1528', bg:'#FAEAF1', weeks_arr:[15,16,17,18,19,20], desc:'Build, test with users, iterate, report'},
+  {id:'discovery', label:'1. Discovery', weeks:'wk 1–6', color:'#AFA9EC', text:'#26215C', bg:'#EEEDFC', weeks_arr:[1,2,3,4,5,6], desc:'Contextual research, interviews, patient journey'},
+  {id:'framing',   label:'2. Framing',   weeks:'wk 7–10', color:'#5DCAA5', text:'#04342C', bg:'#E0F5EE', weeks_arr:[7,8,9,10], desc:'Synthesis, design principles, PROMs architecture'},
+  {id:'ideation',  label:'3. Ideation',  weeks:'wk 11–14', color:'#EF9F27', text:'#412402', bg:'#FDF0D5', weeks_arr:[11,12,13,14], desc:'Visual language, AI strategy, concept development'},
+  {id:'prototype', label:'4. Testing', weeks:'wk 15–20', color:'#ED93B1', text:'#4B1528', bg:'#FAEAF1', weeks_arr:[15,16,17,18,19,20], desc:'Build, test with users, iterate, report'},
 ];
 const MILESTONES = [
   {label:'Kick-off', day:1, week:1},
@@ -774,7 +774,7 @@ function renderHome() {
 
 function renderTasks() {
   const phases = ['urgent','discovery','framing','ideation','prototype','finalisation'];
-  const phaseLabels = {urgent:'⚡ Urgent / admin', discovery:'Phase 1 — Discovery', framing:'Phase 2 — Framing', ideation:'Phase 3 — Ideation', prototype:'Phase 4 — Prototype + test', finalisation:'Finalisation'};
+  const phaseLabels = {urgent:'Urgent', discovery:'1. Discovery', framing:'2. Framing', ideation:'3. Ideation', prototype:'4. Testing', finalisation:'Finalisation'};
 
   const filters = ['all', ...phases];
   document.getElementById('filter-row').innerHTML = filters.map(f => `
@@ -1140,7 +1140,9 @@ let editingPhases = [];
 
 function loadPhases() {
   try {
-    const s = localStorage.getItem('vera_phases_v1');
+    // Clear stale v1 cache
+    localStorage.removeItem('vera_phases_v1');
+    const s = localStorage.getItem('vera_phases_v2');
     if (s) PHASES = JSON.parse(s);
   } catch(e) {}
 }
@@ -1173,7 +1175,7 @@ function savePhases() {
   });
   if (!valid) { alert('Please fill all fields correctly (start week ≤ end week)'); return; }
   PHASES = newPhases;
-  localStorage.setItem('vera_phases_v1', JSON.stringify(PHASES));
+  localStorage.setItem('vera_phases_v2', JSON.stringify(PHASES));
   closePhaseModal();
   renderHome();
   renderNextUp();
