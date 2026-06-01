@@ -526,6 +526,8 @@
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  .doc-del-x { width:26px;height:26px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;color:var(--text3);border-radius:5px;flex-shrink:0;font-size:18px;line-height:1;transition:background 0.1s,color 0.1s; }
+  .doc-del-x:hover { background:var(--red-bg);color:var(--red-text); }
 </style>
 </head>
 <body>
@@ -1553,6 +1555,7 @@ function renderDocs() {
         + (hasLink
           ? '<a href="' + esc(d.link) + '" target="_blank" class="doc-link-btn" title="Open">' + linkSvg + '</a>'
           : '<span class="doc-link-btn disabled" title="No link yet">' + linkSvg + '</span>')
+        + '<button class="doc-del-x" onclick="deleteDoc(\\u0027' + d.id + '\\u0027)">&#215;</button>'
         + '</div>';
     });
   });
@@ -1585,6 +1588,13 @@ function editDoc(id) {
   document.getElementById('fdoc-link').value = d.link || '';
   document.getElementById('doc-modal-overlay').classList.add('open');
   setTimeout(function() { document.getElementById('fdoc-title').focus(); }, 50);
+}
+
+function deleteDoc(id) {
+  if (!confirm("Remove?")) return;
+  var docs = loadDocs().filter(function(d) { return d.id !== id; });
+  saveDocs(docs);
+  renderDocs();
 }
 
 function closeDocModal() {
