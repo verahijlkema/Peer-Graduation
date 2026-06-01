@@ -1538,7 +1538,7 @@ function renderDocs() {
   cats.forEach(function(cat) {
     const catDocs = docs.filter(function(d) { return d.cat === cat; });
     if (!catDocs.length) return;
-    html += '<div class="doc-group-title">' + (catLabels[cat] || cat) + '</div>';
+
     catDocs.forEach(function(d) {
       const color = catColors[cat] || '#888';
       const hasLink = d.link && d.link.trim().length > 0;
@@ -1555,7 +1555,7 @@ function renderDocs() {
         + (hasLink
           ? '<a href="' + esc(d.link) + '" target="_blank" class="doc-link-btn" title="Open">' + linkSvg + '</a>'
           : '<span class="doc-link-btn disabled" title="No link yet">' + linkSvg + '</span>')
-        + '<button class="doc-del-x" onclick="deleteDoc(\\u0027' + d.id + '\\u0027)">&#215;</button>'
+        + '<button class="doc-del-x" onclick="deleteDoc(' + JSON.stringify(d.id) + ')">&#215;</button>'
         + '</div>';
     });
   });
