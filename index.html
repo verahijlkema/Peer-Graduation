@@ -689,9 +689,10 @@ function getCurrentWorkday() {
   now.setHours(0,0,0,0);
   const start = new Date(START_DATE);
   start.setHours(0,0,0,0);
-  if (now < start) return 1;
-  let days = 0;
+  if (now <= start) return 1;
+  let days = 1;
   const cur = new Date(start);
+  cur.setDate(cur.getDate() + 1);
   while (cur <= now) {
     const dow = cur.getDay();
     if (dow !== 0 && dow !== 6) days++;
@@ -798,41 +799,51 @@ function renderTasks() {
     const groupKey = 'group_' + ph + '_open';
     const isOpen = state.taskStates[groupKey] !== undefined
       ? state.taskStates[groupKey]
-      : (currentFilter !== 'all' || isCurrentOrBefore);
+      : (currentFilter !== 'all' ? true : (ph === 'urgent' || phOrder === currentPhaseOrder));
     html += `<div class="task-group">
       <div class="tg-title" onclick="toggleGroupOpen('${ph}')" style="cursor:pointer;user-select:none">
         <span class="tg-chevron" style="display:inline-block;transition:transform 0.2s;transform:rotate(${isOpen ? '90' : '0'}deg);margin-right:4px;color:var(--text3)">›</span>
         ${phaseLabels[ph] || ph} <span class="tg-count">${doneCount}/${tasks.length}</span>
       </div>`;
     if (!isOpen) { html += '</div>'; return; }
-    tasks.forEach(t => {
-      const isOpen = state.taskStates[t.id + '_open'];
-      const subtaskDone = t.subtasks ? t.subtasks.filter(s => s.done).length : 0;
-      const subtaskTotal = t.subtasks ? t.subtasks.length : 0;
-      html += `<div class="task-card ${t.done ? 'done' : ''} ${t.priority === 'urgent' ? 'urgent' : ''}">
-        <div class="task-main">
-          <div class="tc-cb" onclick="toggleTaskDone('${t.id}'); event.stopPropagation()"></div>
-          <div class="tc-body" onclick="toggleOpen('${t.id}')">
-            <div class="tc-title">${esc(t.title)}</div>
-            ${t.desc ? `<div class="tc-desc">${esc(t.desc)}</div>` : ''}
-            <div class="tc-meta">
-              ${t.priority === 'urgent' ? '<span class="tag tag-red">urgent</span>' : t.priority === 'high' ? '<span class="tag tag-amber">high</span>' : ''}
-              ${subtaskTotal > 0 ? `<span style="font-size:11px;color:var(--text3)">${subtaskDone}/${subtaskTotal} subtasks</span>` : ''}
-              ${t.due ? `<span style="font-size:11px;color:var(--text3)">${esc(t.due)}</span>` : ''}
-            </div>
-          </div>
-          ${subtaskTotal > 0 || true ? `<div class="tc-expand ${isOpen ? 'open' : ''}" onclick="toggleOpen('${t.id}')">›</div>` : ''}
-        </div>
-        <div class="subtasks ${isOpen ? 'open' : ''}" id="sub-${t.id}">
-          ${(t.subtasks || []).map(s => `
-            <div class="subtask ${s.done ? 'done' : ''}" onclick="toggleSubtask('${t.id}','${s.id}')">
-              <div class="st-cb"></div>
-              <span>${esc(s.title)}</span>
-            </div>
-          `).join('')}
-          <button class="add-subtask-btn" onclick="addSubtask('${t.id}')">+ add subtask</button>
-        </div>
-      </div>`;
+    tasks.forEach(function(t) {
+      var isOpen = state.taskStates[t.id + '_open'];
+      var subtaskDone = t.subtasks ? t.subtasks.filter(function(s){ return s.done; }).length : 0;
+      var subtaskTotal = t.subtasks ? t.subtasks.length : 0;
+      var leftBorder = t.priority === 'urgent' ? 'border-left:3px solid var(--red);' : t.priority === 'high' ? 'border-left:3px solid var(--amber);' : '';
+      var dotColor = t.priority === 'urgent' ? 'var(--red)' : t.priority === 'high' ? 'var(--amber)' : 'transparent';
+      var expandCls = isOpen ? 'tc-expand open' : 'tc-expand';
+      var subtaskCls = isOpen ? 'subtasks open' : 'subtasks';
+      var cardCls = t.done ? 'task-card done' : 'task-card';
+      var subtaskRows = '';
+      if (t.subtasks) {
+        for (var si = 0; si < t.subtasks.length; si++) {
+          var s = t.subtasks[si];
+          subtaskRows += '<div class="subtask ' + (s.done ? 'done' : '') + '" onclick="toggleSubtask(\'' + t.id + '\',\'' + s.id + '\')">'
+            + '<div class="st-cb"></div><span>' + esc(s.title) + '</span></div>';
+        }
+      }
+      html += '<div class="' + cardCls + '" style="' + leftBorder + '">'
+        + '<div class="task-main">'
+        + '<div class="tc-cb" onclick="toggleTaskDone(\'' + t.id + '\'); event.stopPropagation()"></div>'
+        + '<div class="tc-body" onclick="toggleOpen(\'' + t.id + '\')" style="cursor:pointer">'
+        + '<div class="tc-title">' + esc(t.title) + '</div>'
+        + '</div>'
+        + '<div class="tc-right">'
+        + (subtaskTotal > 0 ? '<span style="font-size:11px;color:var(--text3);font-family:monospace;margin-right:6px">' + subtaskDone + '/' + subtaskTotal + '</span>' : '')
+        + '<span class="tc-priority-dot" style="background:' + dotColor + '"></span>'
+        + '<button class="tc-icon-btn" onclick="editTask(\'' + t.id + '\')" title="Edit"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9.5 1.5l2 2-7 7H2.5v-2l7-7z"/></svg></button>'
+        + '<button class="tc-icon-btn tc-icon-delete" onclick="deleteTask(\'' + t.id + '\')" title="Delete"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="2,3.5 11,3.5"/><path d="M4.5 3.5V2.5h4v1"/><path d="M5 3.5v6M8 3.5v6"/><rect x="3" y="3.5" width="7" height="7.5" rx="1"/></svg></button>'
+        + '<div class="' + expandCls + '" onclick="toggleOpen(\'' + t.id + '\')">&#8250;</div>'
+        + '</div>'
+        + '</div>'
+        + '<div class="' + subtaskCls + '" id="sub-' + t.id + '">'
+        + (t.desc ? '<div style="font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.5">' + esc(t.desc) + '</div>' : '')
+        + subtaskRows
+        + (t.due ? '<div style="font-size:11px;color:var(--text3);margin-top:6px">Due: ' + esc(t.due) + '</div>' : '')
+        + '<button class="add-subtask-btn" onclick="addSubtask(\'' + t.id + '\')">+ add subtask</button>'
+        + '</div>'
+        + '</div>';
     });
     html += '</div>';
   });
