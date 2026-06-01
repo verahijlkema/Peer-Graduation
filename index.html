@@ -461,6 +461,27 @@
   .tc-icon-btn:hover { background: var(--surface2); color: var(--text); }
   .tc-icon-delete:hover { background: var(--red-bg); color: var(--red-text); }
 
+
+  .doc-row { display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;box-shadow:var(--shadow);transition:border-color 0.1s; }
+  .doc-row:hover { border-color:var(--border2); }
+  .doc-cat-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+  .doc-body { flex:1;min-width:0; }
+  .doc-title { font-size:13px;font-weight:500; }
+  .doc-desc { font-size:11px;color:var(--text3);margin-top:2px; }
+  .doc-status-pill { font-size:10px;font-weight:500;padding:3px 9px;border-radius:20px;flex-shrink:0;white-space:nowrap; }
+  .doc-status-ready { background:var(--teal-bg);color:var(--teal-text); }
+  .doc-status-draft { background:var(--amber-bg);color:var(--amber-text); }
+  .doc-status-todo { background:var(--surface2);color:var(--text2); }
+  .doc-status-needed { background:var(--red-bg);color:var(--red-text); }
+  .doc-link-btn { width:30px;height:30px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;color:var(--text3);border-radius:5px;flex-shrink:0;transition:background 0.1s,color 0.1s;text-decoration:none; }
+  .doc-link-btn:hover { background:var(--purple-bg);color:var(--purple); }
+  .doc-link-btn.disabled { opacity:0.3;cursor:default;pointer-events:none; }
+  .doc-edit-btn { width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;color:var(--text3);border-radius:5px;flex-shrink:0;opacity:0;transition:opacity 0.1s,background 0.1s,color 0.1s; }
+  .doc-row:hover .doc-edit-btn { opacity:1; }
+  .doc-edit-btn:hover { background:var(--surface2);color:var(--text); }
+  .doc-group-title { font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin:20px 0 8px; }
+  .doc-group-title:first-child { margin-top:0; }
+
   .date-item {
     display:flex;align-items:flex-start;gap:10px;
     padding:9px 0;border-bottom:1px solid var(--border);
@@ -513,6 +534,7 @@
     <button class="nav-tab active" onclick="showPage('home')">Home</button>
     <button class="nav-tab" onclick="showPage('tasks')">Tasks</button>
     <button class="nav-tab" onclick="showPage('planning')">Planning</button>
+    <button class="nav-tab" onclick="showPage('docs')">Docs</button>
   </div>
   <div class="nav-right">
     <button class="btn-add" onclick="openModal()">
@@ -966,11 +988,12 @@ function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
-  const tabIdx = {home:0, tasks:1, planning:2};
+  const tabIdx = {home:0, tasks:1, planning:2, docs:3};
   document.querySelectorAll('.nav-tab')[(tabIdx[name] !== undefined ? tabIdx[name] : 0)].classList.add('active');
   if (name === 'tasks') renderTasks();
   if (name === 'home') { renderHome(); renderNextUp(); }
   if (name === 'planning') { renderFullTimeline(); renderDatesList(); }
+  if (name === 'docs') renderDocs();
 }
 
 function esc(s) {
@@ -1054,55 +1077,138 @@ function renderDatesList() {
   }).join('');
 }
 
+function loadTimeline() {
+  var defaultVac = [8,9,15,16];
+  var defaultMs = {'1':'Kick-off','8':'Midterm','16':'Green light','20':'Graduation'};
+  try {
+    var sv = localStorage.getItem('vera_vac_v1');
+    if (sv) defaultVac = JSON.parse(sv);
+    var sm = localStorage.getItem('vera_ms_v1');
+    if (sm) defaultMs = JSON.parse(sm);
+  } catch(e) {}
+  return {vac: defaultVac, ms: defaultMs};
+}
+
+function saveTimeline(vac, ms) {
+  localStorage.setItem('vera_vac_v1', JSON.stringify(vac));
+  localStorage.setItem('vera_ms_v1', JSON.stringify(ms));
+}
+
+function toggleVacation(weekNum) {
+  var t = loadTimeline();
+  var idx = t.vac.indexOf(weekNum);
+  if (idx >= 0) t.vac.splice(idx, 1);
+  else t.vac.push(weekNum);
+  saveTimeline(t.vac, t.ms);
+  renderFullTimeline();
+}
+
+function removeMsRow(btn) {
+  btn.parentNode.parentNode.removeChild(btn.parentNode);
+}
+
+function openMilestoneEditor() {
+  var t = loadTimeline();
+  var rows = '';
+  Object.keys(t.ms).forEach(function(week) {
+    var label = t.ms[week];
+    rows += '<div style="display:grid;grid-template-columns:1fr 80px 28px;gap:8px;align-items:center;margin-bottom:8px">'
+      + '<input class="form-input ms-label" value="' + label + '" style="font-size:13px">'
+      + '<input class="form-input ms-week" type="number" min="1" max="20" value="' + week + '" style="text-align:center;font-size:13px;padding:9px 6px">'
+      + '<button onclick="removeMsRow(this)" style="width:28px;height:28px;background:none;border:none;cursor:pointer;color:var(--text3);border-radius:5px">'
+      + '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg>'
+      + '</button></div>';
+  });
+  document.getElementById('ms-editor-body').innerHTML = rows;
+  document.getElementById('ms-modal-overlay').classList.add('open');
+}
+
+function saveMilestones() {
+  var t = loadTimeline();
+  var newMs = {};
+  var rows = document.querySelectorAll('#ms-editor-body > div');
+  for (var i = 0; i < rows.length; i++) {
+    var label = rows[i].querySelector('.ms-label').value.trim();
+    var week = parseInt(rows[i].querySelector('.ms-week').value);
+    if (label && !isNaN(week) && week >= 1 && week <= 20) newMs[week] = label;
+  }
+  saveTimeline(t.vac, newMs);
+  document.getElementById('ms-modal-overlay').classList.remove('open');
+  renderFullTimeline();
+}
+
+function addMilestoneRow() {
+  var div = document.createElement('div');
+  div.style.cssText = 'display:grid;grid-template-columns:1fr 80px 28px;gap:8px;align-items:center;margin-bottom:8px';
+  div.innerHTML = '<input class="form-input ms-label" placeholder="Milestone name" style="font-size:13px">'
+    + '<input class="form-input ms-week" type="number" min="1" max="20" value="1" style="text-align:center;font-size:13px;padding:9px 6px">'
+    + '<button onclick="removeMsRow(this)" style="width:28px;height:28px;background:none;border:none;cursor:pointer;color:var(--text3);border-radius:5px">'
+    + '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg>'
+    + '</button>';
+  document.getElementById('ms-editor-body').appendChild(div);
+}
+
 function renderFullTimeline() {
-  const day = getCurrentWorkday();
-  const currentWeek = Math.ceil(day / 5);
-  const dates = getDates();
+  var day = getCurrentWorkday();
+  var currentWeek = Math.ceil(day / 5);
+  var dates = getDates();
+  var tl = loadTimeline();
+  var vacWks = tl.vac;
+  var msWks = tl.ms;
 
   function getWeekDates(weekNum) {
-    const weekStart = new Date(START_DATE);
+    var weekStart = new Date(START_DATE);
     weekStart.setDate(weekStart.getDate() + (weekNum - 1) * 7);
-    const weekEnd = new Date(weekStart);
+    var weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 6);
     return {start: weekStart, end: weekEnd};
   }
 
   function datesInWeek(weekNum) {
-    const {start, end} = getWeekDates(weekNum);
-    return dates.filter(d => {
-      const dd = new Date(d.date + 'T12:00:00');
-      return dd >= start && dd <= end;
+    var wd = getWeekDates(weekNum);
+    return dates.filter(function(d) {
+      var dd = new Date(d.date + 'T12:00:00');
+      return dd >= wd.start && dd <= wd.end;
     });
   }
 
-  const phaseMap = {1:'discovery',2:'discovery',3:'discovery',4:'discovery',5:'discovery',6:'discovery',7:'framing',8:'framing',9:'framing',10:'framing',11:'ideation',12:'ideation',13:'ideation',14:'ideation',15:'prototype',16:'prototype',17:'prototype',18:'prototype',19:'prototype',20:'prototype'};
-  const phaseColors = {discovery:['#EEEDFC','#26215C'],framing:['#E0F5EE','#04342C'],ideation:['#FDF0D5','#412402'],prototype:['#FAEAF1','#4B1528']};
-  const vacWks = [8,9,15,16];
-  const msWks = {1:'Kick-off',8:'Midterm',16:'Green light',20:'Graduation'};
+  var phaseMap = {1:'discovery',2:'discovery',3:'discovery',4:'discovery',5:'discovery',6:'discovery',7:'framing',8:'framing',9:'framing',10:'framing',11:'ideation',12:'ideation',13:'ideation',14:'ideation',15:'prototype',16:'prototype',17:'prototype',18:'prototype',19:'prototype',20:'prototype'};
+  var phaseColors = {discovery:['#EEEDFC','#26215C'],framing:['#E0F5EE','#04342C'],ideation:['#FDF0D5','#412402'],prototype:['#FAEAF1','#4B1528']};
 
-  let html = '';
-  for (let w = 1; w <= 20; w++) {
-    const isVac = vacWks.includes(w);
-    const ph = phaseMap[w];
-    const [bg, text] = isVac ? ['var(--surface2)','var(--text3)'] : phaseColors[ph];
-    const isCurrent = w === currentWeek;
-    const ms = msWks[w];
-    const wkDates = datesInWeek(w);
-    const {start} = getWeekDates(w);
-    const dateStr = start.toLocaleDateString('en-NL',{day:'numeric',month:'short'});
+  var html = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
+    + '<div style="font-size:11px;color:var(--text3)">Click a week to toggle vacation</div>'
+    + '<button onclick="openMilestoneEditor()" style="font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:4px">'
+    + '<svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M10 1.5l2.5 2.5-7.5 7.5H2.5V9L10 1.5z"/></svg> Edit milestones</button>'
+    + '</div>';
 
-    html += `<div class="tl-week">
-      <div class="tl-week-label">wk ${w}</div>
-      <div class="tl-week-bar ${isCurrent ? 'current' : ''}" style="background:${bg};color:${text}">
-        <span style="font-size:10px;opacity:0.6;margin-right:6px">${dateStr}</span>
-        ${isVac ? '<span style="font-size:11px">— vacation</span>' : ''}
-        ${isCurrent ? '<span style="font-size:11px;font-weight:600">← you are here</span>' : ''}
-        ${wkDates.map(d => `<span class="tl-date-dot date-dot-${d.type}" style="margin-left:4px" title="${d.title}"></span>`).join('')}
-        ${ms ? `<span class="tl-badge ${ms==='vacation'?'vac':''}">${ms}</span>` : ''}
-      </div>
-    </div>`;
+  for (var w = 1; w <= 20; w++) {
+    var isVac = vacWks.indexOf(w) >= 0;
+    var ph = phaseMap[w];
+    var pc = isVac ? ['var(--surface2)', 'var(--text3)'] : (phaseColors[ph] || ['var(--surface2)', 'var(--text2)']);
+    var isCurrent = w === currentWeek;
+    var ms = msWks[String(w)];
+    var wkDates = datesInWeek(w);
+    var wStart = getWeekDates(w).start;
+    var dateStr = wStart.toLocaleDateString('en-NL', {day:'numeric', month:'short'});
+    var dotHtml = wkDates.map(function(d) {
+      return '<span class="tl-date-dot date-dot-' + d.type + '" style="margin-left:4px" title="' + d.title + '"></span>';
+    }).join('');
+
+    html += '<div class="tl-week">'
+      + '<div class="tl-week-label">wk ' + w + '</div>'
+      + '<div class="tl-week-bar' + (isCurrent ? ' current' : '') + '" '
+      + 'style="background:' + pc[0] + ';color:' + pc[1] + ';cursor:pointer" '
+      + 'onclick="toggleVacation(' + w + ')" title="' + (isVac ? 'Remove vacation' : 'Mark as vacation') + '">'
+      + '<span style="font-size:10px;opacity:0.7;margin-right:6px">' + dateStr + '</span>'
+      + (isVac ? '<span style="font-size:11px">— vacation</span>' : '')
+      + (isCurrent ? '<span style="font-size:11px;font-weight:600">← you are here</span>' : '')
+      + dotHtml
+      + (ms ? '<span class="tl-badge">' + ms + '</span>' : '')
+      + '</div></div>';
   }
-  document.getElementById('full-timeline').innerHTML = html;
+
+  var el = document.getElementById('full-timeline');
+  if (el) el.innerHTML = html;
 }
 
 function openDateModal() {
@@ -1161,7 +1267,7 @@ function deleteDate(id) {
   renderNextUp();
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeDateModal(); closePhaseModal(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeDateModal(); closePhaseModal(); var mso = document.getElementById('ms-modal-overlay'); if(mso) mso.classList.remove('open'); closeDocModal(); } });
 
 
 // ── PHASE EDITOR ────────────────────────────────────────────────────────────
@@ -1266,6 +1372,121 @@ function closePhaseModalOutside(e) {
   if (e.target === document.getElementById('phase-modal-overlay')) closePhaseModal();
 }
 
+const DEFAULT_DOCS = [
+  {id:'doc1', title:'Research questions', desc:'Main RQ + 3 sub-questions', cat:'research', status:'ready', link:''},
+  {id:'doc2', title:'Project proposal', desc:'Introduction, problem definition, assignment', cat:'proposal', status:'ready', link:''},
+  {id:'doc3', title:'Intervention brainstorm', desc:'Messy working doc — all ideas and details', cat:'research', status:'ready', link:''},
+  {id:'doc4', title:'Perimenopause primer', desc:'NL-specific clinical overview', cat:'research', status:'ready', link:''},
+  {id:'doc5', title:'Project planning', desc:'20-week timeline with phases and milestones', cat:'planning', status:'ready', link:''},
+  {id:'doc6', title:'HREC ethics application', desc:'Checklist + informed consent + data management plan', cat:'admin', status:'todo', link:''},
+  {id:'doc7', title:'Midterm evaluation form', desc:'Self-evaluation due day 40', cat:'admin', status:'todo', link:''},
+  {id:'doc8', title:'Green light report', desc:'80% draft thesis — due day 80', cat:'proposal', status:'todo', link:''},
+  {id:'doc9', title:'Final graduation report', desc:'Complete thesis — due 1 week before graduation', cat:'proposal', status:'todo', link:''},
+  {id:'doc10', title:'Showcase', desc:'Video or poster demonstrating prototype result', cat:'design', status:'todo', link:''},
+];
+
+let editingDocId = null;
+
+function loadDocs() {
+  try {
+    const s = localStorage.getItem('vera_docs_v1');
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_DOCS));
+}
+function saveDocs(docs) {
+  localStorage.setItem('vera_docs_v1', JSON.stringify(docs));
+}
+
+function renderDocs() {
+  const docs = loadDocs();
+  const catLabels = {research:'Research', proposal:'Proposal', planning:'Planning', admin:'Admin', design:'Design', other:'Other'};
+  const catColors = {research:'#534AB7', proposal:'#0F9B72', planning:'#C47A12', admin:'#888780', design:'#C0416E', other:'#888780'};
+  const statusLabels = {ready:'Ready', draft:'Draft', todo:'To do', needed:'Needed'};
+  const cats = ['research','proposal','planning','design','admin','other'];
+  let html = '';
+  cats.forEach(function(cat) {
+    const catDocs = docs.filter(function(d) { return d.cat === cat; });
+    if (!catDocs.length) return;
+    html += '<div class="doc-group-title">' + (catLabels[cat] || cat) + '</div>';
+    catDocs.forEach(function(d) {
+      const color = catColors[cat] || '#888';
+      const hasLink = d.link && d.link.trim().length > 0;
+      const editSvg = '<svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9.5 1.5l2 2-7 7H2.5v-2l7-7z"/></svg>';
+      const linkSvg = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2H2a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V8"/><path d="M9 1h4v4"/><line x1="13" y1="1" x2="6" y2="8"/></svg>';
+      html += '<div class="doc-row">'
+        + '<div class="doc-cat-dot" style="background:' + color + '"></div>'
+        + '<div class="doc-body">'
+        + '<div class="doc-title">' + esc(d.title) + '</div>'
+        + (d.desc ? '<div class="doc-desc">' + esc(d.desc) + '</div>' : '')
+        + '</div>'
+        + '<span class="doc-status-pill doc-status-' + d.status + '">' + (statusLabels[d.status] || d.status) + '</span>'
+        + '<button class="doc-edit-btn" onclick="editDoc(\u0027' + d.id + '\u0027)" title="Edit">' + editSvg + '</button>'
+        + (hasLink
+          ? '<a href="' + esc(d.link) + '" target="_blank" class="doc-link-btn" title="Open">' + linkSvg + '</a>'
+          : '<span class="doc-link-btn disabled" title="No link yet">' + linkSvg + '</span>')
+        + '</div>';
+    });
+  });
+  if (!html) html = '<div class="empty">No documents yet</div>';
+  document.getElementById('docs-list').innerHTML = html;
+}
+
+function openDocModal() {
+  editingDocId = null;
+  document.getElementById('doc-modal-title').textContent = 'Add document';
+  document.getElementById('fdoc-title').value = '';
+  document.getElementById('fdoc-desc').value = '';
+  document.getElementById('fdoc-cat').value = 'research';
+  document.getElementById('fdoc-status').value = 'todo';
+  document.getElementById('fdoc-link').value = '';
+  document.getElementById('doc-modal-overlay').classList.add('open');
+  setTimeout(function() { document.getElementById('fdoc-title').focus(); }, 50);
+}
+
+function editDoc(id) {
+  const docs = loadDocs();
+  const d = docs.find(function(x) { return x.id === id; });
+  if (!d) return;
+  editingDocId = id;
+  document.getElementById('doc-modal-title').textContent = 'Edit document';
+  document.getElementById('fdoc-title').value = d.title;
+  document.getElementById('fdoc-desc').value = d.desc || '';
+  document.getElementById('fdoc-cat').value = d.cat;
+  document.getElementById('fdoc-status').value = d.status;
+  document.getElementById('fdoc-link').value = d.link || '';
+  document.getElementById('doc-modal-overlay').classList.add('open');
+  setTimeout(function() { document.getElementById('fdoc-title').focus(); }, 50);
+}
+
+function closeDocModal() {
+  document.getElementById('doc-modal-overlay').classList.remove('open');
+  editingDocId = null;
+}
+
+function saveDoc() {
+  const title = document.getElementById('fdoc-title').value.trim();
+  if (!title) { document.getElementById('fdoc-title').focus(); return; }
+  const docs = loadDocs();
+  const data = {
+    title: title,
+    desc: document.getElementById('fdoc-desc').value.trim(),
+    cat: document.getElementById('fdoc-cat').value,
+    status: document.getElementById('fdoc-status').value,
+    link: document.getElementById('fdoc-link').value.trim()
+  };
+  if (editingDocId) {
+    const d = docs.find(function(x) { return x.id === editingDocId; });
+    if (d) { d.title = data.title; d.desc = data.desc; d.cat = data.cat; d.status = data.status; d.link = data.link; }
+  } else {
+    data.id = 'doc_' + Date.now();
+    docs.push(data);
+  }
+  saveDocs(docs);
+  closeDocModal();
+  renderDocs();
+}
+
 // Nav shadow on scroll — no size changes, no jank
 const nav = document.querySelector('nav');
 let rafPending = false;
@@ -1360,6 +1581,62 @@ renderNextUp();
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closePhaseModal()">Cancel</button>
       <button class="btn-save" onclick="savePhases()">Save phases</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="page" id="page-docs">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <h2 style="font-size:16px;font-weight:500">Documents</h2>
+    <button class="btn-add" onclick="openDocModal()">
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
+      Add doc
+    </button>
+  </div>
+  <div id="docs-list"></div>
+</div>
+
+<div class="modal-overlay" id="doc-modal-overlay" onclick="if(event.target===this)closeDocModal()">
+  <div class="modal">
+    <h3 id="doc-modal-title">Add document</h3>
+    <div class="form-group">
+      <label class="form-label">Title *</label>
+      <input class="form-input" id="fdoc-title" placeholder="e.g. Research questions">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <input class="form-input" id="fdoc-desc" placeholder="What is in this document?">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-input" id="fdoc-cat">
+          <option value="research">Research</option>
+          <option value="proposal">Proposal</option>
+          <option value="planning">Planning</option>
+          <option value="admin">Admin</option>
+          <option value="design">Design</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-input" id="fdoc-status">
+          <option value="ready">Ready</option>
+          <option value="draft">Draft</option>
+          <option value="todo">To do</option>
+          <option value="needed">Needed</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Link (Google Drive, Dropbox etc.)</label>
+      <input class="form-input" id="fdoc-link" placeholder="https://...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeDocModal()">Cancel</button>
+      <button class="btn-save" onclick="saveDoc()">Save</button>
     </div>
   </div>
 </div>
