@@ -570,8 +570,12 @@
 
 <!-- TASKS PAGE -->
 <div class="page" id="page-tasks">
-  <div class="tasks-header">
+  <div class="tasks-header" style="justify-content:space-between">
     <h2>All tasks</h2>
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);cursor:pointer;user-select:none">
+      <input type="checkbox" id="show-done" onchange="renderTasks()" style="width:14px;height:14px;accent-color:var(--purple)">
+      Show completed
+    </label>
   </div>
   <div class="filter-row" id="filter-row" style="margin-bottom:20px"></div>
   <div id="task-list"></div>
@@ -624,10 +628,10 @@
 <script>
 const START_DATE = new Date('2025-06-02T00:00:00');
 let PHASES = [
-  {id:'discovery', label:'1. Discovery', weeks:'wk 1–6', color:'#AFA9EC', text:'#26215C', bg:'#EEEDFC', weeks_arr:[1,2,3,4,5,6], desc:'Contextual research, interviews, patient journey'},
-  {id:'framing',   label:'2. Framing',   weeks:'wk 7–10', color:'#5DCAA5', text:'#04342C', bg:'#E0F5EE', weeks_arr:[7,8,9,10], desc:'Synthesis, design principles, PROMs architecture'},
-  {id:'ideation',  label:'3. Ideation',  weeks:'wk 11–14', color:'#EF9F27', text:'#412402', bg:'#FDF0D5', weeks_arr:[11,12,13,14], desc:'Visual language, AI strategy, concept development'},
-  {id:'prototype', label:'4. Testing', weeks:'wk 15–20', color:'#ED93B1', text:'#4B1528', bg:'#FAEAF1', weeks_arr:[15,16,17,18,19,20], desc:'Build, test with users, iterate, report'},
+  {id:'discovery', label:'DISCOVERY', weeks:'wk 1–6', color:'#AFA9EC', text:'#26215C', bg:'#EEEDFC', weeks_arr:[1,2,3,4,5,6], desc:'Contextual research, interviews, patient journey'},
+  {id:'framing',   label:'FRAMING',   weeks:'wk 7–10', color:'#5DCAA5', text:'#04342C', bg:'#E0F5EE', weeks_arr:[7,8,9,10], desc:'Synthesis, design principles, PROMs architecture'},
+  {id:'ideation',  label:'IDEATION',  weeks:'wk 11–14', color:'#EF9F27', text:'#412402', bg:'#FDF0D5', weeks_arr:[11,12,13,14], desc:'Visual language, AI strategy, concept development'},
+  {id:'prototype', label:'TESTING', weeks:'wk 15–20', color:'#ED93B1', text:'#4B1528', bg:'#FAEAF1', weeks_arr:[15,16,17,18,19,20], desc:'Build, test with users, iterate, report'},
 ];
 const MILESTONES = [
   {label:'Kick-off', day:1, week:1},
@@ -714,7 +718,9 @@ function renderHome() {
   const daysLeft = 100 - day;
 
   document.getElementById('stat-day').textContent = day;
-  document.getElementById('stat-done').textContent = state.tasks.filter(t => t.done).length;
+  const doneTasks = state.tasks.filter(t => t.done).length;
+  const totalTasks = state.tasks.length;
+  document.getElementById('stat-done').textContent = doneTasks + '/' + totalTasks;
   document.getElementById('stat-urgent').textContent = state.tasks.filter(t => !t.done && (t.priority === 'urgent' || t.priority === 'high')).length;
 
   document.getElementById('phase-banner').innerHTML = `
@@ -775,7 +781,7 @@ function renderHome() {
 
 function renderTasks() {
   const phases = ['urgent','discovery','framing','ideation','prototype','finalisation'];
-  const phaseLabels = {urgent:'Urgent', discovery:'1. Discovery', framing:'2. Framing', ideation:'3. Ideation', prototype:'4. Testing', finalisation:'Finalisation'};
+  const phaseLabels = {urgent:'URGENT', discovery:'DISCOVERY', framing:'FRAMING', ideation:'IDEATION', prototype:'TESTING', finalisation:'FINALISATION'};
 
   const filters = ['all', ...phases];
   document.getElementById('filter-row').innerHTML = filters.map(f => `
@@ -790,7 +796,9 @@ function renderTasks() {
   const groupedPhases = currentFilter === 'all' ? phases : [currentFilter];
 
   groupedPhases.forEach(ph => {
-    const tasks = state.tasks.filter(t => t.phase === ph);
+    const showDoneEl = document.getElementById('show-done');
+    const showDone = showDoneEl ? showDoneEl.checked : false;
+    const tasks = state.tasks.filter(t => t.phase === ph && (showDone || !t.done));
     if (tasks.length === 0) return;
     const doneCount = tasks.filter(t => t.done).length;
     // Open if: manually toggled, is current/urgent phase, or filter is specific
