@@ -640,10 +640,11 @@
 <script>
 const START_DATE = new Date('2026-06-01T00:00:00');
 let PHASES = [
-  {id:'discovery', label:'DISCOVERY', weeks:'wk 1–7', color:'#AFA9EC', text:'#26215C', bg:'#EEEDFC', weeks_arr:[1,2,3,4,5,6,7], desc:'Literature research, context & user research'},
-  {id:'framing',   label:'FRAMING',   weeks:'wk 8–12', color:'#5DCAA5', text:'#04342C', bg:'#E0F5EE', weeks_arr:[8,9,10,11,12], desc:'Synthesis, concept development'},
-  {id:'ideation',  label:'IDEATION',  weeks:'wk 13–20', color:'#EF9F27', text:'#412402', bg:'#FDF0D5', weeks_arr:[13,14,15,16,17,18,19,20], desc:'Validation & refinement'},
-  {id:'prototype', label:'TESTING',   weeks:'wk 21–25', color:'#ED93B1', text:'#4B1528', bg:'#FAEAF1', weeks_arr:[21,22,23,24,25], desc:'Finalisation & documentation, presentation'},
+  {id:'discovery', label:'DISCOVERY', weeks:'wk 1–4',   color:'#AFA9EC', text:'#26215C', bg:'#EEEDFC', weeks_arr:[1,2,3,4],             desc:'Literature research, context & user research'},
+  {id:'framing',   label:'FRAMING',   weeks:'wk 5–9',   color:'#5DCAA5', text:'#04342C', bg:'#E0F5EE', weeks_arr:[5,6,8,9],             desc:'Synthesis, concept development'},
+  {id:'ideation',  label:'IDEATION',  weeks:'wk 10–13', color:'#EF9F27', text:'#412402', bg:'#FDF0D5', weeks_arr:[10,11,12,13],         desc:'Validation & refinement'},
+  {id:'prototype', label:'TESTING',   weeks:'wk 17–20', color:'#ED93B1', text:'#4B1528', bg:'#FAEAF1', weeks_arr:[17,18,19,20],         desc:'Testing, validation'},
+  {id:'final',     label:'FINALISATION', weeks:'wk 21–25', color:'#97C459', text:'#173404', bg:'#EAF3DE', weeks_arr:[21,22,23,24,25],  desc:'Finalisation & documentation, presentation'},
 ];
 const MILESTONES = [
   {label:'Kick-off', day:1, week:1},
@@ -718,13 +719,13 @@ function getCurrentWorkday() {
 }
 
 function getCurrentPhase(day) {
-  // Based on calendar week (including vacation weeks)
   const now = new Date(); now.setHours(0,0,0,0);
   const start = new Date(START_DATE); start.setHours(0,0,0,0);
   const calWeek = Math.max(1, Math.ceil((now - start) / (7 * 24 * 3600 * 1000)) + 1);
   for (let i = 0; i < PHASES.length; i++) {
     if (PHASES[i].weeks_arr.indexOf(calWeek) >= 0) return PHASES[i];
   }
+  // Return phase whose weeks_arr is closest
   return PHASES[PHASES.length - 1];
 }
 
@@ -1085,7 +1086,7 @@ function renderDatesList() {
 }
 
 function loadTimeline() {
-  var defaultVac = [7,13,14,15,16];
+  var defaultVac = [7,14,15,16];
   var defaultMs = {'1':'Kick-off','10':'Midterm','19':'Final study progress','21':'Green light','25':'Graduation'};
   try {
     var sv = localStorage.getItem('vera_vac_v1');
@@ -1231,15 +1232,16 @@ function renderFullTimeline() {
 
   // Phase colouring — based on work week number (skipping vacation)
   var phaseColors = [
-    {label:'DISCOVERY', weeks:[1,2,3,4,5,6],       bg:'#EEEDFC', text:'#26215C'},
-    {label:'FRAMING',   weeks:[7,8,9,10,11,12],     bg:'#E0F5EE', text:'#04342C'},
-    {label:'IDEATION',  weeks:[13,14,15,16,17],     bg:'#FDF0D5', text:'#412402'},
-    {label:'TESTING',   weeks:[18,19,20],           bg:'#FAEAF1', text:'#4B1528'},
+    {label:'DISCOVERY',    workWeeks:[1,2,3,4],             bg:'#EEEDFC', text:'#26215C'},
+    {label:'FRAMING',      workWeeks:[5,6,7,8],             bg:'#E0F5EE', text:'#04342C'},
+    {label:'IDEATION',     workWeeks:[9,10,11,12],          bg:'#FDF0D5', text:'#412402'},
+    {label:'TESTING',      workWeeks:[13,14,15,16],         bg:'#FAEAF1', text:'#4B1528'},
+    {label:'FINALISATION', workWeeks:[17,18,19,20,21],      bg:'#EAF3DE', text:'#173404'},
   ];
 
   function getPhaseColor(workWk) {
     for (var pi = 0; pi < phaseColors.length; pi++) {
-      if (phaseColors[pi].weeks.indexOf(workWk) >= 0) return phaseColors[pi];
+      if (phaseColors[pi].workWeeks.indexOf(workWk) >= 0) return phaseColors[pi];
     }
     return null;
   }
