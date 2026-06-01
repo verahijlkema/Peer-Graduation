@@ -55,20 +55,14 @@
     display: flex;
     align-items: center;
     gap: 0;
-    height: 52px;
+    height: var(--nav-h, 72px);
     position: sticky;
     top: 0;
     z-index: 100;
-    transition: height 0.3s ease, box-shadow 0.3s ease;
-  }
-  nav.expanded {
-    height: 80px;
-    box-shadow: none;
-    border-bottom-color: transparent;
-  }
-  nav.scrolled {
-    height: 48px;
-    box-shadow: 0 1px 8px rgba(0,0,0,0.07);
+    transition: height 0.25s cubic-bezier(0.4,0,0.2,1),
+                border-color 0.25s ease,
+                box-shadow 0.25s ease;
+    will-change: height;
   }
   .nav-title {
     font-size: 13px;
@@ -412,6 +406,32 @@
 
 
 
+
+  .phase-edit-row {
+    display: grid;
+    grid-template-columns: 1fr 60px 60px 28px;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .phase-edit-row label { font-size: 11px; color: var(--text3); margin-bottom: 3px; display: block; }
+  .phase-color-swatch {
+    width: 100%; height: 36px;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    padding: 0 4px;
+  }
+  .phase-del-btn {
+    width: 28px; height: 28px;
+    background: none; border: none;
+    color: var(--text3); cursor: pointer;
+    border-radius: 5px; display: flex;
+    align-items: center; justify-content: center;
+    transition: background 0.1s, color 0.1s;
+  }
+  .phase-del-btn:hover { background: var(--red-bg); color: var(--red-text); }
+
   .tc-right {
     display: flex;
     align-items: center;
@@ -503,7 +523,13 @@
 <!-- HOME PAGE -->
 <div class="page active" id="page-home">
 
-  <div id="phase-banner" class="phase-banner"></div>
+  <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px">
+    <div id="phase-banner" class="phase-banner" style="flex:1;margin-bottom:0"></div>
+    <button onclick="openPhaseEditor()" title="Edit phases" style="flex-shrink:0;margin-top:0;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;color:var(--text2);font-size:12px;display:flex;align-items:center;gap:5px;height:fit-content;margin-top:4px;font-family:inherit;transition:border-color 0.1s,color 0.1s" onmouseover="this.style.borderColor='var(--border2)';this.style.color='var(--text)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.5" cy="6.5" r="2"/><path d="M6.5 1v1.5M6.5 10.5V12M1 6.5h1.5M10.5 6.5H12M2.6 2.6l1 1M9.4 9.4l1 1M9.4 3.6l-1 1M3.6 9.4l-1 1"/></svg>
+      Edit phases
+    </button>
+  </div>
 
   <div id="nextup-panel" style="margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px"></div>
   <div class="stats-row">
@@ -597,7 +623,7 @@
 
 <script>
 const START_DATE = new Date('2025-06-02T00:00:00');
-const PHASES = [
+let PHASES = [
   {id:'discovery', label:'Discovery', weeks:'wk 1–6', color:'#AFA9EC', text:'#26215C', bg:'#EEEDFC', weeks_arr:[1,2,3,4,5,6], desc:'Contextual research, interviews, patient journey'},
   {id:'framing',   label:'Framing',   weeks:'wk 7–10', color:'#5DCAA5', text:'#04342C', bg:'#E0F5EE', weeks_arr:[7,8,9,10], desc:'Synthesis, design principles, PROMs architecture'},
   {id:'ideation',  label:'Ideation',  weeks:'wk 11–14', color:'#EF9F27', text:'#412402', bg:'#FDF0D5', weeks_arr:[11,12,13,14], desc:'Visual language, AI strategy, concept development'},
@@ -756,14 +782,29 @@ function renderTasks() {
   `).join('');
 
   let html = '';
+  const currentPhaseId = getCurrentPhase(getCurrentWorkday()).id;
+  const phaseOrder = {urgent:0, discovery:1, framing:2, ideation:3, prototype:4, finalisation:5};
+  const currentPhaseOrder = (phaseOrder[currentPhaseId] !== undefined ? phaseOrder[currentPhaseId] : 99);
+
   const groupedPhases = currentFilter === 'all' ? phases : [currentFilter];
 
   groupedPhases.forEach(ph => {
     const tasks = state.tasks.filter(t => t.phase === ph);
     if (tasks.length === 0) return;
     const doneCount = tasks.filter(t => t.done).length;
+    // Open if: manually toggled, is current/urgent phase, or filter is specific
+    const phOrder = (phaseOrder[ph] !== undefined ? phaseOrder[ph] : 99);
+    const isCurrentOrBefore = ph === 'urgent' || phOrder <= currentPhaseOrder;
+    const groupKey = 'group_' + ph + '_open';
+    const isOpen = state.taskStates[groupKey] !== undefined
+      ? state.taskStates[groupKey]
+      : (currentFilter !== 'all' || isCurrentOrBefore);
     html += `<div class="task-group">
-      <div class="tg-title">${phaseLabels[ph] || ph} <span class="tg-count">${doneCount}/${tasks.length}</span></div>`;
+      <div class="tg-title" onclick="toggleGroupOpen('${ph}')" style="cursor:pointer;user-select:none">
+        <span class="tg-chevron" style="display:inline-block;transition:transform 0.2s;transform:rotate(${isOpen ? '90' : '0'}deg);margin-right:4px;color:var(--text3)">›</span>
+        ${phaseLabels[ph] || ph} <span class="tg-count">${doneCount}/${tasks.length}</span>
+      </div>`;
+    if (!isOpen) { html += '</div>'; return; }
     tasks.forEach(t => {
       const isOpen = state.taskStates[t.id + '_open'];
       const subtaskDone = t.subtasks ? t.subtasks.filter(s => s.done).length : 0;
@@ -802,6 +843,18 @@ function renderTasks() {
 
 function toggleOpen(id) {
   state.taskStates[id + '_open'] = !state.taskStates[id + '_open'];
+  save();
+  renderTasks();
+}
+
+function toggleGroupOpen(ph) {
+  const key = 'group_' + ph + '_open';
+  const currentPhaseId = getCurrentPhase(getCurrentWorkday()).id;
+  const phaseOrder = {urgent:0, discovery:1, framing:2, ideation:3, prototype:4, finalisation:5};
+  const isCurrentOrBefore = ph === 'urgent' || ((phaseOrder[ph] !== undefined ? phaseOrder[ph] : 99)) <= ((phaseOrder[currentPhaseId] !== undefined ? phaseOrder[currentPhaseId] : 99));
+  const defaultOpen = isCurrentOrBefore;
+  const currentVal = state.taskStates[key] !== undefined ? state.taskStates[key] : defaultOpen;
+  state.taskStates[key] = !currentVal;
   save();
   renderTasks();
 }
@@ -899,7 +952,7 @@ function showPage(name) {
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   const tabIdx = {home:0, tasks:1, planning:2};
-  document.querySelectorAll('.nav-tab')[tabIdx[name] ?? 0].classList.add('active');
+  document.querySelectorAll('.nav-tab')[(tabIdx[name] !== undefined ? tabIdx[name] : 0)].classList.add('active');
   if (name === 'tasks') renderTasks();
   if (name === 'home') { renderHome(); renderNextUp(); }
   if (name === 'planning') { renderFullTimeline(); renderDatesList(); }
@@ -1079,30 +1132,135 @@ function deleteDate(id) {
   renderNextUp();
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeDateModal(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeDateModal(); closePhaseModal(); } });
 
-// Dynamic nav on scroll
+
+// ── PHASE EDITOR ────────────────────────────────────────────────────────────
+let editingPhases = [];
+
+function loadPhases() {
+  try {
+    const s = localStorage.getItem('vera_phases_v1');
+    if (s) PHASES = JSON.parse(s);
+  } catch(e) {}
+}
+
+function savePhases() {
+  // Read values from editor
+  const rows = document.querySelectorAll('.phase-edit-row');
+  const newPhases = [];
+  let valid = true;
+  const phaseColors = ['#EEEDFC','#E0F5EE','#FDF0D5','#FAEAF1','#E6F1FB','#EAF3DE','#FAEEDA','#F1EFE8'];
+  const phaseTexts = ['#26215C','#04342C','#412402','#4B1528','#042C53','#173404','#412402','#2C2C2A'];
+  rows.forEach((row, i) => {
+    const label = row.querySelector('.pe-label').value.trim();
+    const wStart = parseInt(row.querySelector('.pe-wstart').value);
+    const wEnd = parseInt(row.querySelector('.pe-wend').value);
+    if (!label || isNaN(wStart) || isNaN(wEnd) || wStart > wEnd) { valid = false; return; }
+    const weeks_arr = [];
+    for (let w = wStart; w <= wEnd; w++) weeks_arr.push(w);
+    const existingPhase = PHASES[i] || {};
+    newPhases.push({
+      id: existingPhase.id || 'p_' + Date.now() + i,
+      label,
+      weeks: 'wk ' + wStart + '–' + wEnd,
+      color: existingPhase.color || phaseColors[i % phaseColors.length],
+      text: existingPhase.text || phaseTexts[i % phaseTexts.length],
+      bg: existingPhase.bg || phaseColors[i % phaseColors.length],
+      weeks_arr,
+      desc: existingPhase.desc || ''
+    });
+  });
+  if (!valid) { alert('Please fill all fields correctly (start week ≤ end week)'); return; }
+  PHASES = newPhases;
+  localStorage.setItem('vera_phases_v1', JSON.stringify(PHASES));
+  closePhaseModal();
+  renderHome();
+  renderNextUp();
+  if (document.getElementById('page-planning').classList.contains('active')) {
+    renderFullTimeline();
+  }
+}
+
+function renderPhaseEditor() {
+  const colors = ['#6655D4','#0F9B72','#C47A12','#C0416E','#378ADD','#639922','#D64040','#888780'];
+  let html = '<div style="display:grid;grid-template-columns:1fr 60px 60px 28px;gap:8px;margin-bottom:4px">';
+  html += '<div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Phase name</div>';
+  html += '<div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">From wk</div>';
+  html += '<div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">To wk</div>';
+  html += '<div></div></div>';
+
+  PHASES.forEach((p, i) => {
+    const wStart = p.weeks_arr[0];
+    const wEnd = p.weeks_arr[p.weeks_arr.length - 1];
+    const swatchColor = colors[i % colors.length];
+    html += `<div class="phase-edit-row">
+      <input class="form-input pe-label" value="${esc(p.label)}" placeholder="Phase name" style="font-size:13px">
+      <input class="form-input pe-wstart" type="number" min="1" max="20" value="${wStart}" style="text-align:center;padding:9px 6px;font-size:13px">
+      <input class="form-input pe-wend" type="number" min="1" max="20" value="${wEnd}" style="text-align:center;padding:9px 6px;font-size:13px">
+      <button class="phase-del-btn" onclick="removePhaseRow(this)" title="Remove">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg>
+      </button>
+    </div>`;
+  });
+  document.getElementById('phase-editor-list').innerHTML = html;
+}
+
+function removePhaseRow(btn) {
+  btn.closest('.phase-edit-row').remove();
+}
+
+function addPhase() {
+  const list = document.getElementById('phase-editor-list');
+  const div = document.createElement('div');
+  div.className = 'phase-edit-row';
+  div.innerHTML = `
+    <input class="form-input pe-label" placeholder="New phase name" style="font-size:13px">
+    <input class="form-input pe-wstart" type="number" min="1" max="20" value="1" style="text-align:center;padding:9px 6px;font-size:13px">
+    <input class="form-input pe-wend" type="number" min="1" max="20" value="4" style="text-align:center;padding:9px 6px;font-size:13px">
+    <button class="phase-del-btn" onclick="removePhaseRow(this)" title="Remove">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg>
+    </button>`;
+  list.appendChild(div);
+}
+
+function openPhaseEditor() {
+  renderPhaseEditor();
+  document.getElementById('phase-modal-overlay').classList.add('open');
+}
+function closePhaseModal() {
+  document.getElementById('phase-modal-overlay').classList.remove('open');
+}
+function closePhaseModalOutside(e) {
+  if (e.target === document.getElementById('phase-modal-overlay')) closePhaseModal();
+}
+
+// Dynamic nav on scroll — glitch-free via CSS custom property
 const nav = document.querySelector('nav');
 const logo = document.getElementById('nav-logo');
-let lastScroll = 0;
+let rafPending = false;
 
 function updateNav() {
-  const scroll = window.scrollY;
-  if (scroll < 10) {
-    nav.classList.add('expanded');
-    nav.classList.remove('scrolled');
-    if (logo) logo.style.height = '52px';
-  } else {
-    nav.classList.remove('expanded');
-    nav.classList.add('scrolled');
-    if (logo) logo.style.height = '28px';
-  }
-  lastScroll = scroll;
+  if (rafPending) return;
+  rafPending = true;
+  requestAnimationFrame(() => {
+    rafPending = false;
+    const scrolled = window.scrollY > 8;
+    const navH = scrolled ? '48px' : '72px';
+    const logoH = scrolled ? '28px' : '48px';
+    const shadow = scrolled ? '0 1px 6px rgba(0,0,0,0.08)' : 'none';
+    const border = scrolled ? 'var(--border)' : 'transparent';
+    nav.style.setProperty('--nav-h', navH);
+    nav.style.boxShadow = shadow;
+    nav.style.borderBottomColor = border;
+    if (logo) logo.style.height = logoH;
+  });
 }
 
 window.addEventListener('scroll', updateNav, { passive: true });
 updateNav();
 
+loadPhases();
 load();
 renderHome();
 renderNextUp();
@@ -1163,6 +1321,21 @@ renderNextUp();
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeDateModal()">Cancel</button>
       <button class="btn-save" onclick="saveDate()">Save</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- PHASE EDITOR MODAL -->
+<div class="modal-overlay" id="phase-modal-overlay" onclick="closePhaseModalOutside(event)">
+  <div class="modal" style="max-width:600px">
+    <h3>Edit phases</h3>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:20px;line-height:1.5">Rename phases, adjust week ranges, or add your own. Weeks 1–20 total. Changes are saved locally.</p>
+    <div id="phase-editor-list"></div>
+    <button onclick="addPhase()" style="margin-top:12px;padding:7px 14px;font-size:12px;background:none;border:1px dashed var(--border2);border-radius:var(--radius-sm);color:var(--text2);cursor:pointer;font-family:inherit;width:100%;transition:border-color 0.1s,color 0.1s" onmouseover="this.style.borderColor='var(--purple)';this.style.color='var(--purple)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'">+ Add phase</button>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closePhaseModal()">Cancel</button>
+      <button class="btn-save" onclick="savePhases()">Save phases</button>
     </div>
   </div>
 </div>
