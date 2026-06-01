@@ -246,12 +246,14 @@
 
   .task-group { margin-bottom: 24px; }
   .tg-title {
-    font-size: 11px; font-weight: 600;
-    text-transform: uppercase; letter-spacing: 0.07em;
-    color: var(--text3); margin-bottom: 8px;
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--text); margin-bottom: 10px;
     display: flex; align-items: center; gap: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1.5px solid var(--border);
   }
-  .tg-count { font-weight: 400; }
+  .tg-count { font-weight: 400; color: var(--text3); font-size: 11px; }
 
   .task-card {
     background: var(--surface);
@@ -910,7 +912,7 @@ function renderTasks() {
         const topicKey = 'topic_' + ph + '_' + tp + '_open';
         const topicOpen = state.taskStates[topicKey] !== undefined ? state.taskStates[topicKey] : true;
         const topicLabel = tp ? (topicLabels[tp] || tp) : 'General';
-        html += '<div style="margin:8px 0 4px;padding:5px 0 3px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;display:flex;align-items:center;gap:4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3)" onclick="toggleTopicOpen(\'' + ph + '\',\'' + tp + '\')">'
+        html += '<div style="margin:10px 0 6px;cursor:pointer;user-select:none;display:flex;align-items:center;gap:4px;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--text3)" onclick="toggleTopicOpen(\'' + ph + '\',\'' + tp + '\')">'
           + '<span style="display:inline-block;transition:transform 0.15s;transform:rotate(' + (topicOpen?'90':'0') + 'deg)">›</span>'
           + topicLabel + '<span style="font-weight:400;opacity:0.7;margin-left:3px">(' + byTopic[tp].length + ')</span>'
           + '</div>';
