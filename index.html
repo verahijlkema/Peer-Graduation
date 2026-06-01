@@ -136,6 +136,11 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 12px;
+    box-sizing: border-box;
+  }
+  #phase-banner, #day-banner {
+    align-self: stretch;
+    align-items: flex-start;
   }
   .phase-banner-left {}
   .phase-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--purple); margin-bottom: 4px; }
@@ -521,13 +526,7 @@
 <div class="page active" id="page-home">
 
   <div style="display:grid;grid-template-columns:1fr 200px;gap:12px;margin-bottom:16px;align-items:stretch">
-    <div style="display:flex;align-items:flex-start;gap:10px">
-      <div id="phase-banner" class="phase-banner" style="flex:1;margin-bottom:0"></div>
-      <button onclick="openPhaseEditor()" title="Edit phases" style="flex-shrink:0;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;color:var(--text2);font-size:12px;display:flex;align-items:center;gap:5px;height:fit-content;margin-top:4px;font-family:inherit;transition:border-color 0.1s,color 0.1s" onmouseover="this.style.borderColor='var(--border2)';this.style.color='var(--text)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6.5" cy="6.5" r="2"/><path d="M6.5 1v1.5M6.5 10.5V12M1 6.5h1.5M10.5 6.5H12M2.6 2.6l1 1M9.4 9.4l1 1M9.4 3.6l-1 1M3.6 9.4l-1 1"/></svg>
-        Edit phases
-      </button>
-    </div>
+    <div id="phase-banner" class="phase-banner" style="margin-bottom:0"></div>
     <div id="day-banner" class="phase-banner" style="margin-bottom:0"></div>
   </div>
 
@@ -536,7 +535,12 @@
   <div class="home-grid">
     <div>
       <div class="card" style="margin-bottom:16px">
-        <div class="card-title">20-week timeline</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div class="card-title" style="margin-bottom:0">20-week timeline</div>
+          <button onclick="openPhaseEditor()" title="Edit phases" style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;color:var(--text3);border-radius:5px;transition:background 0.1s,color 0.1s;padding:0" onmouseover="this.style.background='var(--surface2)';this.style.color='var(--text)'" onmouseout="this.style.background='none';this.style.color='var(--text3)'">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 1.5l2.5 2.5-7.5 7.5H2.5V9L10 1.5z"/><path d="M8.5 3l2.5 2.5"/></svg>
+          </button>
+        </div>
         <div class="timeline">
           <div class="timeline-track" id="tl-track"></div>
           <div class="timeline-milestones" id="tl-milestones"></div>
