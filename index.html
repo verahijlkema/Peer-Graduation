@@ -410,6 +410,45 @@
   /* EMPTY STATE */
   .empty { text-align: center; padding: 40px 20px; color: var(--text3); font-size: 13px; }
 
+
+  .date-item {
+    display:flex;align-items:flex-start;gap:10px;
+    padding:9px 0;border-bottom:1px solid var(--border);
+  }
+  .date-item:last-child{border-bottom:none;padding-bottom:0}
+  .date-item:first-child{padding-top:0}
+  .date-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+  .date-dot-milestone{background:var(--purple)}
+  .date-dot-meeting{background:var(--teal)}
+  .date-dot-deadline{background:var(--red)}
+  .date-dot-vacation{background:var(--amber)}
+  .date-dot-other{background:var(--border2)}
+  .date-body{flex:1;min-width:0}
+  .date-title{font-size:13px;font-weight:500;line-height:1.3}
+  .date-meta{font-size:11px;color:var(--text3);margin-top:2px}
+  .date-delete{font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer;padding:0;font-family:inherit;opacity:0;transition:opacity 0.1s}
+  .date-item:hover .date-delete{opacity:1}
+  .date-delete:hover{color:var(--red)}
+
+  .nextup-card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);padding:14px 16px;
+    box-shadow:var(--shadow);
+  }
+  .nextup-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:6px}
+  .nextup-title{font-size:13px;font-weight:500;line-height:1.4}
+  .nextup-meta{font-size:11px;color:var(--text3);margin-top:3px}
+
+  .tl-week{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+  .tl-week-label{font-size:11px;color:var(--text2);width:36px;flex-shrink:0;text-align:right}
+  .tl-week-bar{flex:1;height:28px;border-radius:5px;display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:500;position:relative;overflow:visible}
+  .tl-week-bar.current{outline:2px solid var(--purple);outline-offset:1px}
+  .tl-badge{position:absolute;right:-4px;top:50%;transform:translateY(-50%);font-size:9px;font-weight:600;background:var(--purple);color:white;padding:2px 6px;border-radius:10px;white-space:nowrap;z-index:1}
+  .tl-badge.vac{background:var(--amber-bg);color:var(--amber-text)}
+  .tl-date-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+
+  @media(max-width:700px){#planning-grid{grid-template-columns:1fr}}
+
   /* SCROLLBAR */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -423,6 +462,7 @@
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showPage('home')">Home</button>
     <button class="nav-tab" onclick="showPage('tasks')">Tasks</button>
+    <button class="nav-tab" onclick="showPage('planning')">Planning</button>
   </div>
   <div class="nav-right">
     <button class="btn-add" onclick="openModal()">
@@ -437,6 +477,7 @@
 
   <div id="phase-banner" class="phase-banner"></div>
 
+  <div id="nextup-panel" style="margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px"></div>
   <div class="stats-row">
     <div class="stat-card">
       <div class="stat-num" id="stat-day">—</div>
@@ -833,9 +874,11 @@ function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
-  document.querySelectorAll('.nav-tab')[name === 'home' ? 0 : 1].classList.add('active');
+  const tabIdx = {home:0, tasks:1, planning:2};
+  document.querySelectorAll('.nav-tab')[tabIdx[name] ?? 0].classList.add('active');
   if (name === 'tasks') renderTasks();
-  if (name === 'home') renderHome();
+  if (name === 'home') { renderHome(); renderNextUp(); }
+  if (name === 'planning') { renderFullTimeline(); renderDatesList(); }
 }
 
 function esc(s) {
@@ -843,7 +886,176 @@ function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ── DEFAULT KEY DATES ───────────────────────────────────────────────────────
+const DEFAULT_DATES = [
+  {id:'dd1', title:'Kick-off meeting', date:'2026-06-01', type:'milestone', notes:'Full supervisory team: Richard, Sara, Isabella'},
+  {id:'dd2', title:'HREC application deadline', date:'2026-06-08', type:'deadline', notes:'Submit as early as possible — takes 3+ weeks to process'},
+  {id:'dd3', title:'Midterm evaluation', date:'2026-07-24', type:'milestone', notes:'Day 40 — self-evaluation form to supervisors 3 days before'},
+  {id:'dd4', title:'Green light meeting', date:'2026-09-18', type:'milestone', notes:'Day 80 — submit 80% draft report + Turnitin check'},
+  {id:'dd5', title:'Graduation', date:'2026-10-16', type:'milestone', notes:'Day 100 — public presentation at IDE Faculty'},
+];
+
+let editingDateId = null;
+
+function loadDates() {
+  try {
+    const s = localStorage.getItem('vera_dates_v1');
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_DATES));
+}
+function saveDates(dates) {
+  localStorage.setItem('vera_dates_v1', JSON.stringify(dates));
+}
+function getDates() {
+  return loadDates().sort((a,b) => a.date.localeCompare(b.date));
+}
+
+function fmtDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-NL', {day:'numeric', month:'short', year:'numeric'});
+}
+function daysUntil(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const now = new Date(); now.setHours(0,0,0,0);
+  return Math.round((d - now) / 86400000);
+}
+
+function renderNextUp() {
+  const dates = getDates().filter(d => daysUntil(d.date) >= 0).slice(0, 2);
+  const tasks = state.tasks.filter(t => !t.done && (t.priority === 'urgent' || t.priority === 'high')).slice(0, 1);
+  let html = '';
+  dates.forEach(d => {
+    const n = daysUntil(d.date);
+    const dotCls = 'date-dot-' + d.type;
+    html += `<div class="nextup-card">
+      <div class="nextup-label" style="display:flex;align-items:center;gap:5px">
+        <span class="tl-date-dot ${dotCls}"></span> ${d.type}
+      </div>
+      <div class="nextup-title">${esc(d.title)}</div>
+      <div class="nextup-meta">${fmtDate(d.date)} &middot; ${n === 0 ? 'today' : n === 1 ? 'tomorrow' : 'in ' + n + ' days'}</div>
+    </div>`;
+  });
+  document.getElementById('nextup-panel').innerHTML = html;
+}
+
+function renderDatesList() {
+  const dates = getDates();
+  const today = new Date(); today.setHours(0,0,0,0);
+  if (!dates.length) {
+    document.getElementById('dates-list').innerHTML = '<div class="empty">No key dates yet</div>';
+    return;
+  }
+  document.getElementById('dates-list').innerHTML = dates.map(d => {
+    const n = daysUntil(d.date);
+    const past = n < 0;
+    const dotCls = 'date-dot-' + d.type;
+    return `<div class="date-item" style="${past ? 'opacity:0.45' : ''}">
+      <span class="date-dot ${dotCls}"></span>
+      <div class="date-body">
+        <div class="date-title">${esc(d.title)}</div>
+        <div class="date-meta">${fmtDate(d.date)}${n === 0 ? ' · today' : n > 0 ? ' · in ' + n + ' days' : ' · ' + Math.abs(n) + ' days ago'}${d.notes ? ' · ' + esc(d.notes) : ''}</div>
+      </div>
+      <button class="date-delete" onclick="deleteDate('${d.id}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function renderFullTimeline() {
+  const day = getCurrentWorkday();
+  const currentWeek = Math.ceil(day / 5);
+  const dates = getDates();
+
+  function getWeekDates(weekNum) {
+    const weekStart = new Date(START_DATE);
+    weekStart.setDate(weekStart.getDate() + (weekNum - 1) * 7);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    return {start: weekStart, end: weekEnd};
+  }
+
+  function datesInWeek(weekNum) {
+    const {start, end} = getWeekDates(weekNum);
+    return dates.filter(d => {
+      const dd = new Date(d.date + 'T12:00:00');
+      return dd >= start && dd <= end;
+    });
+  }
+
+  const phaseMap = {1:'discovery',2:'discovery',3:'discovery',4:'discovery',5:'discovery',6:'discovery',7:'framing',8:'framing',9:'framing',10:'framing',11:'ideation',12:'ideation',13:'ideation',14:'ideation',15:'prototype',16:'prototype',17:'prototype',18:'prototype',19:'prototype',20:'prototype'};
+  const phaseColors = {discovery:['#EEEDFC','#26215C'],framing:['#E0F5EE','#04342C'],ideation:['#FDF0D5','#412402'],prototype:['#FAEAF1','#4B1528']};
+  const vacWks = [8,9,15,16];
+  const msWks = {1:'Kick-off',8:'Midterm',16:'Green light',20:'Graduation'};
+
+  let html = '';
+  for (let w = 1; w <= 20; w++) {
+    const isVac = vacWks.includes(w);
+    const ph = phaseMap[w];
+    const [bg, text] = isVac ? ['var(--surface2)','var(--text3)'] : phaseColors[ph];
+    const isCurrent = w === currentWeek;
+    const ms = msWks[w];
+    const wkDates = datesInWeek(w);
+    const {start} = getWeekDates(w);
+    const dateStr = start.toLocaleDateString('en-NL',{day:'numeric',month:'short'});
+
+    html += `<div class="tl-week">
+      <div class="tl-week-label">wk ${w}</div>
+      <div class="tl-week-bar ${isCurrent ? 'current' : ''}" style="background:${bg};color:${text}">
+        <span style="font-size:10px;opacity:0.6;margin-right:6px">${dateStr}</span>
+        ${isVac ? '<span style="font-size:11px">— vacation</span>' : ''}
+        ${isCurrent ? '<span style="font-size:11px;font-weight:600">← you are here</span>' : ''}
+        ${wkDates.map(d => `<span class="tl-date-dot date-dot-${d.type}" style="margin-left:4px" title="${d.title}"></span>`).join('')}
+        ${ms ? `<span class="tl-badge ${ms==='vacation'?'vac':''}">${ms}</span>` : ''}
+      </div>
+    </div>`;
+  }
+  document.getElementById('full-timeline').innerHTML = html;
+}
+
+function openDateModal() {
+  editingDateId = null;
+  document.getElementById('date-modal-title').textContent = 'Add key date';
+  document.getElementById('fd-title').value = '';
+  document.getElementById('fd-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('fd-type').value = 'meeting';
+  document.getElementById('fd-notes').value = '';
+  document.getElementById('date-modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('fd-title').focus(), 50);
+}
+function closeDateModal() {
+  document.getElementById('date-modal-overlay').classList.remove('open');
+}
+function closeDateModalOutside(e) {
+  if (e.target === document.getElementById('date-modal-overlay')) closeDateModal();
+}
+function saveDate() {
+  const title = document.getElementById('fd-title').value.trim();
+  const date = document.getElementById('fd-date').value;
+  if (!title || !date) { document.getElementById('fd-title').focus(); return; }
+  const dates = loadDates();
+  if (editingDateId) {
+    const d = dates.find(d => d.id === editingDateId);
+    if (d) { d.title = title; d.date = date; d.type = document.getElementById('fd-type').value; d.notes = document.getElementById('fd-notes').value.trim(); }
+  } else {
+    dates.push({id:'d_'+Date.now(), title, date, type: document.getElementById('fd-type').value, notes: document.getElementById('fd-notes').value.trim()});
+  }
+  saveDates(dates);
+  closeDateModal();
+  renderDatesList();
+  renderFullTimeline();
+  renderNextUp();
+}
+function deleteDate(id) {
+  if (!confirm('Remove this date?')) return;
+  const dates = loadDates().filter(d => d.id !== id);
+  saveDates(dates);
+  renderDatesList();
+  renderFullTimeline();
+  renderNextUp();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeDateModal(); } });
 
 // Dynamic nav on scroll
 const nav = document.querySelector('nav');
@@ -869,6 +1081,67 @@ updateNav();
 
 load();
 renderHome();
+renderNextUp();
 </script>
+
+<!-- PLANNING PAGE -->
+<div class="page" id="page-planning">
+  <div style="display:grid;grid-template-columns:1fr 340px;gap:20px" id="planning-grid">
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">20-week project timeline</div>
+        <div id="full-timeline"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div class="card-title" style="margin-bottom:0">Key dates</div>
+          <button class="btn-add" onclick="openDateModal()" style="padding:4px 10px;font-size:12px">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
+            Add
+          </button>
+        </div>
+        <div id="dates-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DATE MODAL -->
+<div class="modal-overlay" id="date-modal-overlay" onclick="closeDateModalOutside(event)">
+  <div class="modal">
+    <h3 id="date-modal-title">Add key date</h3>
+    <div class="form-group">
+      <label class="form-label">Title *</label>
+      <input class="form-input" id="fd-title" placeholder="e.g. Kick-off meeting, Midterm, Interview with Isabella">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Date *</label>
+        <input class="form-input" id="fd-date" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-input" id="fd-type">
+          <option value="milestone">Milestone</option>
+          <option value="meeting">Meeting</option>
+          <option value="deadline">Deadline</option>
+          <option value="vacation">Vacation</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes (optional)</label>
+      <input class="form-input" id="fd-notes" placeholder="Extra info, location, link...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeDateModal()">Cancel</button>
+      <button class="btn-save" onclick="saveDate()">Save</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
