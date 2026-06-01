@@ -1094,45 +1094,71 @@ function saveTimeline(vac, ms) {
   localStorage.setItem('vera_ms_v1', JSON.stringify(ms));
 }
 
-function toggleVacation(weekNum) {
-  var t = loadTimeline();
-  var idx = t.vac.indexOf(weekNum);
-  if (idx >= 0) t.vac.splice(idx, 1);
-  else t.vac.push(weekNum);
-  saveTimeline(t.vac, t.ms);
-  renderFullTimeline();
+function removeMsRow(btn) {
+  btn.parentNode.parentNode.removeChild(btn.parentNode);
 }
 
-function removeMsRow(btn) {
+function removeVacRow(btn) {
   btn.parentNode.parentNode.removeChild(btn.parentNode);
 }
 
 function openMilestoneEditor() {
   var t = loadTimeline();
-  var rows = '';
-  Object.keys(t.ms).forEach(function(week) {
+  var msRows = '';
+  Object.keys(t.ms).sort(function(a,b){return a-b;}).forEach(function(week) {
     var label = t.ms[week];
-    rows += '<div style="display:grid;grid-template-columns:1fr 80px 28px;gap:8px;align-items:center;margin-bottom:8px">'
+    msRows += '<div style="display:grid;grid-template-columns:1fr 80px 28px;gap:8px;align-items:center;margin-bottom:8px">'
       + '<input class="form-input ms-label" value="' + label + '" style="font-size:13px">'
-      + '<input class="form-input ms-week" type="number" min="1" max="20" value="' + week + '" style="text-align:center;font-size:13px;padding:9px 6px">'
+      + '<input class="form-input ms-week" type="number" min="1" max="24" value="' + week + '" style="text-align:center;font-size:13px;padding:9px 6px">'
       + '<button onclick="removeMsRow(this)" style="width:28px;height:28px;background:none;border:none;cursor:pointer;color:var(--text3);border-radius:5px">'
       + '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg>'
       + '</button></div>';
   });
-  document.getElementById('ms-editor-body').innerHTML = rows;
+
+  var vacRows = '';
+  t.vac.slice().sort(function(a,b){return a-b;}).forEach(function(week) {
+    vacRows += '<div style="display:grid;grid-template-columns:80px 28px;gap:8px;align-items:center;margin-bottom:8px">'
+      + '<input class="form-input vac-week" type="number" min="1" max="24" value="' + week + '" style="text-align:center;font-size:13px;padding:9px 6px">'
+      + '<button onclick="removeVacRow(this)" style="width:28px;height:28px;background:none;border:none;cursor:pointer;color:var(--text3);border-radius:5px">'
+      + '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg>'
+      + '</button></div>';
+  });
+
+  document.getElementById('ms-editor-body').innerHTML =
+    '<div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px">Milestones</div>'
+    + '<div style="display:grid;grid-template-columns:1fr 80px 28px;gap:8px;margin-bottom:6px">'
+    + '<div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Name</div>'
+    + '<div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Week</div>'
+    + '<div></div></div>'
+    + '<div id="ms-rows">' + msRows + '</div>'
+    + '<button onclick="addMilestoneRow()" style="margin-bottom:20px;width:100%;padding:6px;font-size:11px;background:none;border:1px dashed var(--border2);border-radius:var(--radius-sm);color:var(--text2);cursor:pointer;font-family:inherit">+ Add milestone</button>'
+    + '<div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px">Vacation weeks</div>'
+    + '<div style="font-size:11px;color:var(--text3);margin-bottom:8px">Each vacation week is added on top of the 20 work weeks — total project length is 20 + number of vacation weeks.</div>'
+    + '<div style="display:grid;grid-template-columns:80px 28px;gap:8px;margin-bottom:6px">'
+    + '<div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Week nr</div>'
+    + '<div></div></div>'
+    + '<div id="vac-rows">' + vacRows + '</div>'
+    + '<button onclick="addVacRow()" style="width:100%;padding:6px;font-size:11px;background:none;border:1px dashed var(--border2);border-radius:var(--radius-sm);color:var(--text2);cursor:pointer;font-family:inherit">+ Add vacation week</button>';
+
   document.getElementById('ms-modal-overlay').classList.add('open');
 }
 
 function saveMilestones() {
   var t = loadTimeline();
   var newMs = {};
-  var rows = document.querySelectorAll('#ms-editor-body > div');
-  for (var i = 0; i < rows.length; i++) {
-    var label = rows[i].querySelector('.ms-label').value.trim();
-    var week = parseInt(rows[i].querySelector('.ms-week').value);
-    if (label && !isNaN(week) && week >= 1 && week <= 20) newMs[week] = label;
+  var msRowEls = document.querySelectorAll('#ms-rows > div');
+  for (var i = 0; i < msRowEls.length; i++) {
+    var label = msRowEls[i].querySelector('.ms-label').value.trim();
+    var week = parseInt(msRowEls[i].querySelector('.ms-week').value);
+    if (label && !isNaN(week) && week >= 1 && week <= 24) newMs[week] = label;
   }
-  saveTimeline(t.vac, newMs);
+  var newVac = [];
+  var vacRowEls = document.querySelectorAll('#vac-rows > div');
+  for (var j = 0; j < vacRowEls.length; j++) {
+    var vw = parseInt(vacRowEls[j].querySelector('.vac-week').value);
+    if (!isNaN(vw) && vw >= 1 && vw <= 24 && newVac.indexOf(vw) < 0) newVac.push(vw);
+  }
+  saveTimeline(newVac, newMs);
   document.getElementById('ms-modal-overlay').classList.remove('open');
   renderFullTimeline();
 }
@@ -1141,20 +1167,34 @@ function addMilestoneRow() {
   var div = document.createElement('div');
   div.style.cssText = 'display:grid;grid-template-columns:1fr 80px 28px;gap:8px;align-items:center;margin-bottom:8px';
   div.innerHTML = '<input class="form-input ms-label" placeholder="Milestone name" style="font-size:13px">'
-    + '<input class="form-input ms-week" type="number" min="1" max="20" value="1" style="text-align:center;font-size:13px;padding:9px 6px">'
+    + '<input class="form-input ms-week" type="number" min="1" max="24" value="1" style="text-align:center;font-size:13px;padding:9px 6px">'
     + '<button onclick="removeMsRow(this)" style="width:28px;height:28px;background:none;border:none;cursor:pointer;color:var(--text3);border-radius:5px">'
     + '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg>'
     + '</button>';
-  document.getElementById('ms-editor-body').appendChild(div);
+  document.getElementById('ms-rows').appendChild(div);
+}
+
+function addVacRow() {
+  var div = document.createElement('div');
+  div.style.cssText = 'display:grid;grid-template-columns:80px 28px;gap:8px;align-items:center;margin-bottom:8px';
+  div.innerHTML = '<input class="form-input vac-week" type="number" min="1" max="24" value="8" style="text-align:center;font-size:13px;padding:9px 6px">'
+    + '<button onclick="removeVacRow(this)" style="width:28px;height:28px;background:none;border:none;cursor:pointer;color:var(--text3);border-radius:5px">'
+    + '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg>'
+    + '</button>';
+  document.getElementById('vac-rows').appendChild(div);
 }
 
 function renderFullTimeline() {
   var day = getCurrentWorkday();
-  var currentWeek = Math.ceil(day / 5);
-  var dates = getDates();
   var tl = loadTimeline();
   var vacWks = tl.vac;
   var msWks = tl.ms;
+
+  // Total weeks = 20 work weeks + vacation weeks, max 24
+  var totalWeeks = Math.max(20, 20 + vacWks.length);
+
+  // Work week counter — vacation weeks don't count toward the 20
+  var workWeekNum = 0;
 
   function getWeekDates(weekNum) {
     var weekStart = new Date(START_DATE);
@@ -1164,6 +1204,7 @@ function renderFullTimeline() {
     return {start: weekStart, end: weekEnd};
   }
 
+  var dates = getDates();
   function datesInWeek(weekNum) {
     var wd = getWeekDates(weekNum);
     return dates.filter(function(d) {
@@ -1172,19 +1213,39 @@ function renderFullTimeline() {
     });
   }
 
-  var phaseMap = {1:'discovery',2:'discovery',3:'discovery',4:'discovery',5:'discovery',6:'discovery',7:'framing',8:'framing',9:'framing',10:'framing',11:'ideation',12:'ideation',13:'ideation',14:'ideation',15:'prototype',16:'prototype',17:'prototype',18:'prototype',19:'prototype',20:'prototype'};
-  var phaseColors = {discovery:['#EEEDFC','#26215C'],framing:['#E0F5EE','#04342C'],ideation:['#FDF0D5','#412402'],prototype:['#FAEAF1','#4B1528']};
+  // Determine current week based on today's date
+  var now = new Date(); now.setHours(0,0,0,0);
+  var currentWeek = 1;
+  for (var cw = 1; cw <= totalWeeks; cw++) {
+    var wd = getWeekDates(cw);
+    if (now >= wd.start && now <= wd.end) { currentWeek = cw; break; }
+    if (now > wd.end) currentWeek = cw + 1;
+  }
 
-  var html = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
-    + '<div style="font-size:11px;color:var(--text3)">Click a week to toggle vacation</div>'
-    + '<button onclick="openMilestoneEditor()" style="font-size:11px;color:var(--text3);background:none;border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:4px">'
-    + '<svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M10 1.5l2.5 2.5-7.5 7.5H2.5V9L10 1.5z"/></svg> Edit milestones</button>'
-    + '</div>';
+  // Phase colouring — based on work week number (skipping vacation)
+  var phaseColors = [
+    {label:'DISCOVERY', weeks:[1,2,3,4,5,6], bg:'#EEEDFC', text:'#26215C'},
+    {label:'FRAMING',   weeks:[7,8,9,10],     bg:'#E0F5EE', text:'#04342C'},
+    {label:'IDEATION',  weeks:[11,12,13,14],  bg:'#FDF0D5', text:'#412402'},
+    {label:'TESTING',   weeks:[15,16,17,18,19,20], bg:'#FAEAF1', text:'#4B1528'},
+  ];
 
-  for (var w = 1; w <= 20; w++) {
+  function getPhaseColor(workWk) {
+    for (var pi = 0; pi < phaseColors.length; pi++) {
+      if (phaseColors[pi].weeks.indexOf(workWk) >= 0) return phaseColors[pi];
+    }
+    return null;
+  }
+
+  var html = '';
+  workWeekNum = 0;
+
+  for (var w = 1; w <= totalWeeks; w++) {
     var isVac = vacWks.indexOf(w) >= 0;
-    var ph = phaseMap[w];
-    var pc = isVac ? ['var(--surface2)', 'var(--text3)'] : (phaseColors[ph] || ['var(--surface2)', 'var(--text2)']);
+    if (!isVac) workWeekNum++;
+    var phase = isVac ? null : getPhaseColor(workWeekNum);
+    var bg = isVac ? 'var(--surface2)' : (phase ? phase.bg : 'var(--surface2)');
+    var textColor = isVac ? 'var(--text3)' : (phase ? phase.text : 'var(--text2)');
     var isCurrent = w === currentWeek;
     var ms = msWks[String(w)];
     var wkDates = datesInWeek(w);
@@ -1193,16 +1254,17 @@ function renderFullTimeline() {
     var dotHtml = wkDates.map(function(d) {
       return '<span class="tl-date-dot date-dot-' + d.type + '" style="margin-left:4px" title="' + d.title + '"></span>';
     }).join('');
+    var workLabel = isVac ? '' : ('<span style="font-size:10px;opacity:0.5;margin-left:auto;padding-left:8px">work wk ' + workWeekNum + '</span>');
 
     html += '<div class="tl-week">'
       + '<div class="tl-week-label">wk ' + w + '</div>'
       + '<div class="tl-week-bar' + (isCurrent ? ' current' : '') + '" '
-      + 'style="background:' + pc[0] + ';color:' + pc[1] + ';cursor:pointer" '
-      + 'onclick="toggleVacation(' + w + ')" title="' + (isVac ? 'Remove vacation' : 'Mark as vacation') + '">'
+      + 'style="background:' + bg + ';color:' + textColor + '">'
       + '<span style="font-size:10px;opacity:0.7;margin-right:6px">' + dateStr + '</span>'
-      + (isVac ? '<span style="font-size:11px">— vacation</span>' : '')
-      + (isCurrent ? '<span style="font-size:11px;font-weight:600">← you are here</span>' : '')
+      + (isVac ? '<span style="font-size:11px;font-style:italic">vacation</span>' : '')
+      + (isCurrent ? '<span style="font-size:11px;font-weight:600">\u2190 you are here</span>' : '')
       + dotHtml
+      + workLabel
       + (ms ? '<span class="tl-badge">' + ms + '</span>' : '')
       + '</div></div>';
   }
