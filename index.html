@@ -590,6 +590,7 @@
     </label>
   </div>
   <div class="filter-row" id="filter-row" style="margin-bottom:20px"></div>
+  <div class="filter-row" id="filter-row" style="margin-bottom:20px"></div>
   <div id="task-list"></div>
 </div>
 
@@ -609,11 +610,11 @@
       <div class="form-group">
         <label class="form-label">Phase</label>
         <select class="form-input" id="f-phase">
-          <option value="urgent">⚡ Urgent / admin</option>
-          <option value="discovery">Phase 1 — Discovery</option>
-          <option value="framing">Phase 2 — Framing</option>
-          <option value="ideation">Phase 3 — Ideation</option>
-          <option value="prototype">Phase 4 — Prototype</option>
+          <option value="preparation">Preparation</option>
+          <option value="discovery">Discovery</option>
+          <option value="framing">Framing</option>
+          <option value="ideation">Ideation</option>
+          <option value="prototype">Testing</option>
           <option value="finalisation">Finalisation</option>
         </select>
       </div>
@@ -622,8 +623,28 @@
         <select class="form-input" id="f-priority">
           <option value="normal">Normal</option>
           <option value="high">High</option>
-          <option value="urgent">Urgent</option>
+          <option value="preparation">Preparation</option>
         </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Topic (optional)</label>
+        <select class="form-input" id="f-topic">
+          <option value="">— none —</option>
+          <option value="literature">Literature</option>
+          <option value="interviews">Interviews</option>
+          <option value="analysis">Analysis</option>
+          <option value="design">Design</option>
+          <option value="prototype">Prototype</option>
+          <option value="writing">Writing / report</option>
+          <option value="practical">Practical / admin</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Due date (optional)</label>
+        <input class="form-input" id="f-due" type="date">
       </div>
     </div>
     <div class="form-group">
@@ -655,11 +676,11 @@ const MILESTONES = [
 const VACATION_WEEKS = [8,9,15,16];
 
 const DEFAULT_TASKS = [
-  {id:'d1',title:'Register in MyCase',desc:'Go to mycase.tudelft.nl — required before kick-off can happen',phase:'urgent',priority:'urgent',done:false,subtasks:[{id:'d1s1',title:'Create new MSc graduation case',done:false},{id:'d1s2',title:'Propose supervisory team in MyCase',done:false}]},
-  {id:'d2',title:'Upload graduation contract with Ksyos',desc:'Must be signed by both parties and uploaded to MyCase before kick-off',phase:'urgent',priority:'urgent',done:false,subtasks:[]},
-  {id:'d3',title:'Upload Project Proposal to MyCase',desc:'At least 3 working days before kick-off. Use the TU Delft template from the graduation website.',phase:'urgent',priority:'urgent',done:false,subtasks:[{id:'d3s1',title:'Download TU Delft Project Proposal template',done:false},{id:'d3s2',title:'Fill in all sections (introduction, problem def, assignment)',done:false},{id:'d3s3',title:'Add milestone dates + planning',done:false}]},
-  {id:'d4',title:'Confirm kick-off meeting',desc:'Schedule with Richard, Sara and Isabella — full supervisory team must attend',phase:'urgent',priority:'high',done:false,subtasks:[]},
-  {id:'d5',title:'Start HREC ethics application',desc:'Submit immediately after kick-off — takes minimum 3 weeks. You need this before any user testing.',phase:'discovery',priority:'urgent',done:false,subtasks:[{id:'d5s1',title:'HREC Checklist',done:false},{id:'d5s2',title:'Informed consent template',done:false},{id:'d5s3',title:'Data management plan',done:false},{id:'d5s4',title:'Submit via Lab Servant software (needs EduVPN off-campus)',done:false}]},
+  {id:'d1',title:'Register in MyCase',desc:'Go to mycase.tudelft.nl — required before kick-off can happen',phase:'preparation',priority:'preparation',done:false,subtasks:[{id:'d1s1',title:'Create new MSc graduation case',done:false},{id:'d1s2',title:'Propose supervisory team in MyCase',done:false}]},
+  {id:'d2',title:'Upload graduation contract with Ksyos',desc:'Must be signed by both parties and uploaded to MyCase before kick-off',phase:'preparation',priority:'preparation',done:false,subtasks:[]},
+  {id:'d3',title:'Upload Project Proposal to MyCase',desc:'At least 3 working days before kick-off. Use the TU Delft template from the graduation website.',phase:'preparation',priority:'preparation',done:false,subtasks:[{id:'d3s1',title:'Download TU Delft Project Proposal template',done:false},{id:'d3s2',title:'Fill in all sections (introduction, problem def, assignment)',done:false},{id:'d3s3',title:'Add milestone dates + planning',done:false}]},
+  {id:'d4',title:'Confirm kick-off meeting',desc:'Schedule with Richard, Sara and Isabella — full supervisory team must attend',phase:'preparation',priority:'high',done:false,subtasks:[]},
+  {id:'d5',title:'Start HREC ethics application',desc:'Submit immediately after kick-off — takes minimum 3 weeks. You need this before any user testing.',phase:'discovery',priority:'preparation',done:false,subtasks:[{id:'d5s1',title:'HREC Checklist',done:false},{id:'d5s2',title:'Informed consent template',done:false},{id:'d5s3',title:'Data management plan',done:false},{id:'d5s4',title:'Submit via Lab Servant software (needs EduVPN off-campus)',done:false}]},
   {id:'d6',title:'Set up access to Ksyos pilot data',desc:'Clarify with Isabella what data and systems I can access, consent process, recruitment',phase:'discovery',priority:'high',done:false,subtasks:[]},
   {id:'d7',title:'Contextual interviews — perimenopausal women',desc:'Recruit via Ksyos pilot. Need HREC approval first.',phase:'discovery',priority:'normal',done:false,subtasks:[{id:'d7s1',title:'Draft interview guide',done:false},{id:'d7s2',title:'Recruit 5–8 participants via Isabella',done:false},{id:'d7s3',title:'Conduct + transcribe interviews',done:false}]},
   {id:'d8',title:'Contextual interviews — clinicians',desc:'Overgangsconsulente + gynaecologist at Ksyos. What do they need from patient data?',phase:'discovery',priority:'normal',done:false,subtasks:[{id:'d8s1',title:'Draft clinician interview guide',done:false},{id:'d8s2',title:'Conduct interviews',done:false}]},
@@ -786,16 +807,16 @@ function renderHome() {
   }).join('');
   document.getElementById('phase-rows').innerHTML = phaseRowsHtml;
 
-  const urgent = state.tasks.filter(t => !t.done && (t.priority === 'urgent' || t.priority === 'high')).slice(0, 8);
+  const urgent = state.tasks.filter(t => !t.done && (t.priority === 'preparation' || t.priority === 'high')).slice(0, 8);
   if (urgent.length === 0) {
     document.getElementById('priority-list').innerHTML = '<div class="empty">No urgent tasks — you\'re on top of it!</div>';
   } else {
     document.getElementById('priority-list').innerHTML = urgent.map(t => `
-      <div class="priority-task ${t.done ? 'done' : ''} ${t.priority === 'urgent' ? 'pt-urgent' : ''}" onclick="toggleTaskDone('${t.id}')">
+      <div class="priority-task ${t.done ? 'done' : ''} ${t.priority === 'preparation' ? 'pt-urgent' : ''}" onclick="toggleTaskDone('${t.id}')">
         <div class="pt-cb"></div>
         <div class="pt-body">
           <div class="pt-title">${esc(t.title)}</div>
-          <div class="pt-meta">${t.priority === 'urgent' ? '' : ''}${esc(t.phase)}</div>
+          <div class="pt-meta">${t.priority === 'preparation' ? '' : ''}${esc(t.phase)}</div>
         </div>
       </div>
     `).join('');
@@ -803,8 +824,8 @@ function renderHome() {
 }
 
 function renderTasks() {
-  const phases = ['urgent','discovery','framing','ideation','prototype','finalisation'];
-  const phaseLabels = {urgent:'URGENT', discovery:'DISCOVERY', framing:'FRAMING', ideation:'IDEATION', prototype:'TESTING', finalisation:'FINALISATION'};
+  const phases = ['preparation','discovery','framing','ideation','prototype','finalisation'];
+  const phaseLabels = {preparation:'PREPARATION', discovery:'DISCOVERY', framing:'FRAMING', ideation:'IDEATION', prototype:'TESTING', finalisation:'FINALISATION'};
 
   const filters = ['all', ...phases];
   document.getElementById('filter-row').innerHTML = filters.map(f => `
@@ -813,7 +834,7 @@ function renderTasks() {
 
   let html = '';
   const currentPhaseId = getCurrentPhase(getCurrentWorkday()).id;
-  const phaseOrder = {urgent:0, discovery:1, framing:2, ideation:3, prototype:4, finalisation:5};
+  const phaseOrder = {preparation:0, discovery:1, framing:2, ideation:3, prototype:4, finalisation:5};
   const currentPhaseOrder = (phaseOrder[currentPhaseId] !== undefined ? phaseOrder[currentPhaseId] : 99);
 
   const groupedPhases = currentFilter === 'all' ? phases : [currentFilter];
@@ -826,11 +847,11 @@ function renderTasks() {
     const doneCount = tasks.filter(t => t.done).length;
     // Open if: manually toggled, is current/urgent phase, or filter is specific
     const phOrder = (phaseOrder[ph] !== undefined ? phaseOrder[ph] : 99);
-    const isCurrentOrBefore = ph === 'urgent' || phOrder <= currentPhaseOrder;
+    const isCurrentOrBefore = ph === 'preparation' || phOrder <= currentPhaseOrder;
     const groupKey = 'group_' + ph + '_open';
     const isOpen = state.taskStates[groupKey] !== undefined
       ? state.taskStates[groupKey]
-      : (currentFilter !== 'all' ? true : (ph === 'urgent' || phOrder === currentPhaseOrder));
+      : (currentFilter !== 'all' ? true : (ph === 'preparation' || phOrder === currentPhaseOrder));
     html += `<div class="task-group">
       <div class="tg-title" onclick="toggleGroupOpen('${ph}')" style="cursor:pointer;user-select:none">
         <span class="tg-chevron" style="display:inline-block;transition:transform 0.2s;transform:rotate(${isOpen ? '90' : '0'}deg);margin-right:4px;color:var(--text3)">›</span>
@@ -849,8 +870,8 @@ function renderTasks() {
       var isOpen = state.taskStates[t.id + '_open'];
       var subtaskDone = t.subtasks ? t.subtasks.filter(function(s){ return s.done; }).length : 0;
       var subtaskTotal = t.subtasks ? t.subtasks.length : 0;
-      var leftBorder = t.priority === 'urgent' ? 'border-left:3px solid var(--red);' : t.priority === 'high' ? 'border-left:3px solid var(--amber);' : '';
-      var dotColor = t.priority === 'urgent' ? 'var(--red)' : t.priority === 'high' ? 'var(--amber)' : 'transparent';
+      var leftBorder = t.priority === 'preparation' ? 'border-left:3px solid var(--red);' : t.priority === 'high' ? 'border-left:3px solid var(--amber);' : '';
+      var dotColor = t.priority === 'preparation' ? 'var(--red)' : t.priority === 'high' ? 'var(--amber)' : 'transparent';
       var expandCls = isOpen ? 'tc-expand open' : 'tc-expand';
       var subtaskCls = isOpen ? 'subtasks open' : 'subtasks';
       var cardCls = t.done ? 'task-card done' : 'task-card';
@@ -927,8 +948,8 @@ function toggleTopicOpen(ph, tp) {
 function toggleGroupOpen(ph) {
   const key = 'group_' + ph + '_open';
   const currentPhaseId = getCurrentPhase(getCurrentWorkday()).id;
-  const phaseOrder = {urgent:0, discovery:1, framing:2, ideation:3, prototype:4, finalisation:5};
-  const isCurrentOrBefore = ph === 'urgent' || ((phaseOrder[ph] !== undefined ? phaseOrder[ph] : 99)) <= ((phaseOrder[currentPhaseId] !== undefined ? phaseOrder[currentPhaseId] : 99));
+  const phaseOrder = {preparation:0, discovery:1, framing:2, ideation:3, prototype:4, finalisation:5};
+  const isCurrentOrBefore = ph === 'preparation' || ((phaseOrder[ph] !== undefined ? phaseOrder[ph] : 99)) <= ((phaseOrder[currentPhaseId] !== undefined ? phaseOrder[currentPhaseId] : 99));
   const defaultOpen = isCurrentOrBefore;
   const currentVal = state.taskStates[key] !== undefined ? state.taskStates[key] : defaultOpen;
   state.taskStates[key] = !currentVal;
@@ -970,6 +991,7 @@ function editTask(id) {
   document.getElementById('f-phase').value = t.phase;
   document.getElementById('f-priority').value = t.priority;
   document.getElementById('f-due').value = t.due || '';
+  document.getElementById('f-topic').value = t.topic || '';
   document.getElementById('modal-overlay').classList.add('open');
 }
 
@@ -992,6 +1014,7 @@ function openModal() {
   document.getElementById('f-phase').value = 'discovery';
   document.getElementById('f-priority').value = 'normal';
   document.getElementById('f-due').value = '';
+  document.getElementById('f-topic').value = '';
   document.getElementById('modal-overlay').classList.add('open');
   setTimeout(() => document.getElementById('f-title').focus(), 50);
 }
@@ -1013,7 +1036,8 @@ function saveTask() {
     desc: document.getElementById('f-desc').value.trim(),
     phase: document.getElementById('f-phase').value,
     priority: document.getElementById('f-priority').value,
-    due: document.getElementById('f-due').value.trim(),
+    due: document.getElementById('f-due').value,
+    topic: document.getElementById('f-topic').value
   };
   if (editingId) {
     const t = state.tasks.find(t => t.id === editingId);
@@ -1082,7 +1106,7 @@ function daysUntil(dateStr) {
 
 function renderNextUp() {
   const dates = getDates().filter(d => daysUntil(d.date) >= 0).slice(0, 2);
-  const tasks = state.tasks.filter(t => !t.done && (t.priority === 'urgent' || t.priority === 'high')).slice(0, 1);
+  const tasks = state.tasks.filter(t => !t.done && (t.priority === 'preparation' || t.priority === 'high')).slice(0, 1);
   let html = '';
   dates.forEach(d => {
     const n = daysUntil(d.date);
