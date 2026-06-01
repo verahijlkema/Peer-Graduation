@@ -267,7 +267,7 @@
     transition: border-color 0.1s;
   }
   .task-card:hover { border-color: var(--border2); }
-  .task-card.urgent { border-left: 3px solid var(--red); }
+
   .task-card.done { opacity: 0.55; }
 
   .task-main {
@@ -410,6 +410,34 @@
   /* EMPTY STATE */
   .empty { text-align: center; padding: 40px 20px; color: var(--text3); font-size: 13px; }
 
+
+
+  .tc-right {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+  .tc-priority-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-right: 4px;
+  }
+  .tc-icon-btn {
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: none;
+    color: var(--text3);
+    border-radius: 5px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.1s, background 0.1s, color 0.1s;
+  }
+  .task-card:hover .tc-icon-btn { opacity: 1; }
+  .tc-icon-btn:hover { background: var(--surface2); color: var(--text); }
+  .tc-icon-delete:hover { background: var(--red-bg); color: var(--red-text); }
 
   .date-item {
     display:flex;align-items:flex-start;gap:10px;
@@ -763,11 +791,7 @@ function renderTasks() {
           `).join('')}
           <button class="add-subtask-btn" onclick="addSubtask('${t.id}')">+ add subtask</button>
         </div>
-        <div class="task-actions ${isOpen ? 'open' : ''}">
-          <button class="act-btn" onclick="editTask('${t.id}')">✏️ Edit</button>
-          <button class="act-btn danger" onclick="deleteTask('${t.id}')">🗑 Delete</button>
-        </div>
-      </div>`;
+      </div>\`;
     });
     html += '</div>';
   });
