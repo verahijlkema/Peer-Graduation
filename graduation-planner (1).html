@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Is This Normal? — Graduation Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F6F2;
+    --surface: #FFFFFF;
+    --surface2: #F0EEE9;
+    --border: #E4E1D8;
+    --border2: #D0CDBF;
+    --text: #1A1916;
+    --text2: #6B6860;
+    --text3: #9B9890;
+    --purple: #6655D4;
+    --purple-bg: #EEEDFC;
+    --purple-text: #3D2FA8;
+    --teal: #0F9B72;
+    --teal-bg: #E0F5EE;
+    --teal-text: #085041;
+    --amber: #C47A12;
+    --amber-bg: #FDF0D5;
+    --amber-text: #7A4A07;
+    --pink: #C0416E;
+    --pink-bg: #FAEAF1;
+    --pink-text: #7A2244;
+    --red: #D64040;
+    --red-bg: #FDEAEA;
+    --red-text: #8B2020;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    height: 52px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    margin-right: 24px;
+    white-space: nowrap;
+  }
+  .nav-title span { color: var(--text); }
+  .nav-tabs { display: flex; gap: 2px; }
+  .nav-tab {
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 400;
+    border: none;
+    background: none;
+    color: var(--text2);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.1s, color 0.1s;
+  }
+  .nav-tab:hover { background: var(--surface2); color: var(--text); }
+  .nav-tab.active { background: var(--purple-bg); color: var(--purple-text); font-weight: 500; }
+  .nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+  .btn-add {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 14px;
+    background: var(--purple);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.1s;
+  }
+  .btn-add:hover { opacity: 0.88; }
+  .btn-add svg { width: 14px; height: 14px; }
+
+  /* PAGES */
+  .page { display: none; padding: 24px; max-width: 960px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* HOME PAGE */
+  .home-grid { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
+  @media (max-width: 700px) { .home-grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .card-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text3);
+    margin-bottom: 16px;
+  }
+
+  /* PHASE BANNER */
+  .phase-banner {
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    background: var(--purple-bg);
+    border: 1px solid #D4CEFB;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .phase-banner-left {}
+  .phase-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--purple); margin-bottom: 4px; }
+  .phase-name { font-size: 20px; font-weight: 500; color: var(--purple-text); }
+  .phase-desc { font-size: 12px; color: var(--purple-text); opacity: 0.8; margin-top: 2px; }
+  .phase-days { text-align: right; }
+  .phase-days-num { font-size: 28px; font-weight: 300; color: var(--purple-text); font-family: 'DM Mono', monospace; }
+  .phase-days-label { font-size: 11px; color: var(--purple-text); opacity: 0.7; }
+
+  /* TIMELINE */
+  .timeline { margin-bottom: 4px; }
+  .timeline-track {
+    height: 8px;
+    background: var(--surface2);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    display: flex;
+  }
+  .timeline-seg { height: 100%; transition: width 0.3s; }
+  .seg-done { background: var(--teal); }
+  .seg-active { background: var(--purple); }
+  .seg-future { background: var(--border); }
+  .timeline-milestones { display: flex; justify-content: space-between; margin-bottom: 16px; }
+  .tm-item { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .tm-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--border2); background: var(--surface); }
+  .tm-dot.done { border-color: var(--teal); background: var(--teal); }
+  .tm-dot.active { border-color: var(--purple); background: var(--purple); }
+  .tm-label { font-size: 10px; color: var(--text3); }
+  .tm-day { font-size: 10px; color: var(--text2); font-weight: 500; }
+
+  /* PHASE BARS */
+  .phase-rows { display: flex; flex-direction: column; gap: 6px; }
+  .phase-row { display: flex; align-items: center; gap: 10px; }
+  .phase-row-label { font-size: 11px; color: var(--text2); width: 80px; flex-shrink: 0; text-align: right; }
+  .phase-row-bar { flex: 1; height: 22px; border-radius: 4px; display: flex; align-items: center; padding: 0 10px; font-size: 11px; font-weight: 500; }
+  .phase-wk { font-size: 10px; font-weight: 400; opacity: 0.7; margin-left: auto; }
+
+  /* PRIORITY TASKS */
+  .priority-task {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  .priority-task:last-child { border-bottom: none; padding-bottom: 0; }
+  .priority-task:first-child { padding-top: 0; }
+  .pt-cb {
+    width: 18px; height: 18px;
+    border: 1.5px solid var(--border2);
+    border-radius: 5px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .priority-task.done .pt-cb { background: var(--teal); border-color: var(--teal); }
+  .priority-task.done .pt-cb::after { content: ''; display: block; width: 9px; height: 5px; border-left: 2px solid white; border-bottom: 2px solid white; transform: rotate(-45deg) translate(1px, -1px); }
+  .pt-body { flex: 1; min-width: 0; }
+  .pt-title { font-size: 13px; line-height: 1.4; }
+  .priority-task.done .pt-title { text-decoration: line-through; color: var(--text3); }
+  .pt-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .pt-urgent { border-left: 3px solid var(--red); padding-left: 10px; border-radius: 0; }
+  .pt-urgent .pt-meta { color: var(--red-text); }
+
+  .tag {
+    display: inline-flex; align-items: center;
+    font-size: 10px; font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 20px;
+    margin-right: 4px;
+  }
+  .tag-red { background: var(--red-bg); color: var(--red-text); }
+  .tag-purple { background: var(--purple-bg); color: var(--purple-text); }
+  .tag-teal { background: var(--teal-bg); color: var(--teal-text); }
+  .tag-amber { background: var(--amber-bg); color: var(--amber-text); }
+
+  /* STATS ROW */
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+  .stat-num { font-size: 24px; font-weight: 300; font-family: 'DM Mono', monospace; color: var(--text); }
+  .stat-label { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* TASKS PAGE */
+  .tasks-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .tasks-header h2 { font-size: 16px; font-weight: 500; }
+  .filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .filter-btn {
+    padding: 5px 12px;
+    font-size: 12px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--surface);
+    color: var(--text2);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.1s;
+  }
+  .filter-btn:hover { border-color: var(--border2); color: var(--text); }
+  .filter-btn.active { background: var(--purple-bg); border-color: #D4CEFB; color: var(--purple-text); font-weight: 500; }
+
+  .task-group { margin-bottom: 24px; }
+  .tg-title {
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--text3); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .tg-count { font-weight: 400; }
+
+  .task-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 6px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: border-color 0.1s;
+  }
+  .task-card:hover { border-color: var(--border2); }
+  .task-card.urgent { border-left: 3px solid var(--red); }
+  .task-card.done { opacity: 0.55; }
+
+  .task-main {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+  }
+  .tc-cb {
+    width: 18px; height: 18px;
+    border: 1.5px solid var(--border2);
+    border-radius: 5px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .task-card.done .tc-cb { background: var(--teal); border-color: var(--teal); }
+  .task-card.done .tc-cb::after { content: ''; display: block; width: 9px; height: 5px; border-left: 2px solid white; border-bottom: 2px solid white; transform: rotate(-45deg) translate(1px, -1px); }
+  .tc-body { flex: 1; min-width: 0; }
+  .tc-title { font-size: 13px; font-weight: 500; line-height: 1.4; }
+  .task-card.done .tc-title { text-decoration: line-through; color: var(--text3); }
+  .tc-desc { font-size: 12px; color: var(--text2); margin-top: 3px; line-height: 1.4; }
+  .tc-meta { display: flex; align-items: center; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+  .tc-expand {
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text3); cursor: pointer; flex-shrink: 0;
+    border-radius: 4px; transition: background 0.1s;
+    font-size: 16px; margin-top: 0;
+  }
+  .tc-expand:hover { background: var(--surface2); color: var(--text); }
+  .tc-expand.open { transform: rotate(90deg); }
+
+  .subtasks {
+    border-top: 1px solid var(--border);
+    padding: 10px 14px 10px 44px;
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .subtasks.open { display: flex; }
+  .subtask {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text2);
+    cursor: pointer;
+  }
+  .st-cb {
+    width: 14px; height: 14px;
+    border: 1.5px solid var(--border2);
+    border-radius: 3px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .subtask.done .st-cb { background: var(--teal); border-color: var(--teal); }
+  .subtask.done .st-cb::after { content: ''; display: block; width: 7px; height: 3px; border-left: 1.5px solid white; border-bottom: 1.5px solid white; transform: rotate(-45deg) translate(0px, -1px); }
+  .subtask.done span { text-decoration: line-through; color: var(--text3); }
+  .add-subtask-btn {
+    background: none; border: none;
+    font-size: 11px; color: var(--text3);
+    cursor: pointer; font-family: inherit;
+    display: flex; align-items: center; gap: 4px;
+    padding: 2px 0;
+  }
+  .add-subtask-btn:hover { color: var(--purple); }
+
+  .task-actions {
+    display: flex; gap: 6px;
+    padding: 0 14px 10px 44px;
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+    display: none;
+  }
+  .task-actions.open { display: flex; }
+  .act-btn {
+    font-size: 11px; color: var(--text3);
+    background: none; border: none;
+    cursor: pointer; font-family: inherit;
+    padding: 3px 8px; border-radius: 4px;
+    transition: background 0.1s, color 0.1s;
+  }
+  .act-btn:hover { background: var(--surface2); color: var(--text); }
+  .act-btn.danger:hover { background: var(--red-bg); color: var(--red-text); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 200;
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 24px;
+    width: 100%; max-width: 520px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal h3 { font-size: 16px; font-weight: 500; margin-bottom: 20px; }
+  .form-group { margin-bottom: 16px; }
+  .form-label { font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 6px; display: block; }
+  .form-input {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.1s;
+  }
+  .form-input:focus { border-color: var(--purple); }
+  textarea.form-input { resize: vertical; min-height: 80px; }
+  select.form-input { cursor: pointer; }
+  .form-row { display: flex; gap: 10px; }
+  .form-row .form-group { flex: 1; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+  .btn-cancel {
+    padding: 8px 16px; font-size: 13px;
+    background: none; border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    color: var(--text2); cursor: pointer; font-family: inherit;
+  }
+  .btn-cancel:hover { background: var(--surface2); }
+  .btn-save {
+    padding: 8px 20px; font-size: 13px;
+    background: var(--purple); border: none;
+    border-radius: var(--radius-sm);
+    color: white; cursor: pointer; font-family: inherit; font-weight: 500;
+  }
+  .btn-save:hover { opacity: 0.88; }
+
+  /* EMPTY STATE */
+  .empty { text-align: center; padding: 40px 20px; color: var(--text3); font-size: 13px; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-title">'Is This Normal?' <span>Graduation</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('home')">Home</button>
+    <button class="nav-tab" onclick="showPage('tasks')">Tasks</button>
+  </div>
+  <div class="nav-right">
+    <button class="btn-add" onclick="openModal()">
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
+      Add task
+    </button>
+  </div>
+</nav>
+
+<!-- HOME PAGE -->
+<div class="page active" id="page-home">
+
+  <div id="phase-banner" class="phase-banner"></div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num" id="stat-day">—</div>
+      <div class="stat-label">current workday</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-done">0</div>
+      <div class="stat-label">tasks completed</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-urgent">0</div>
+      <div class="stat-label">urgent / due soon</div>
+    </div>
+  </div>
+
+  <div class="home-grid">
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">20-week timeline</div>
+        <div class="timeline">
+          <div class="timeline-track" id="tl-track"></div>
+          <div class="timeline-milestones" id="tl-milestones"></div>
+          <div class="phase-rows" id="phase-rows"></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="card-title">Priority + urgent</div>
+        <div id="priority-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TASKS PAGE -->
+<div class="page" id="page-tasks">
+  <div class="tasks-header">
+    <h2>All tasks</h2>
+  </div>
+  <div class="filter-row" id="filter-row" style="margin-bottom:20px"></div>
+  <div id="task-list"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <h3 id="modal-title">Add task</h3>
+    <div class="form-group">
+      <label class="form-label">Title *</label>
+      <input class="form-input" id="f-title" placeholder="What needs to happen?">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description / notes</label>
+      <textarea class="form-input" id="f-desc" placeholder="Extra context, links, requirements..."></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Phase</label>
+        <select class="form-input" id="f-phase">
+          <option value="urgent">⚡ Urgent / admin</option>
+          <option value="discovery">Phase 1 — Discovery</option>
+          <option value="framing">Phase 2 — Framing</option>
+          <option value="ideation">Phase 3 — Ideation</option>
+          <option value="prototype">Phase 4 — Prototype</option>
+          <option value="finalisation">Finalisation</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Priority</label>
+        <select class="form-input" id="f-priority">
+          <option value="normal">Normal</option>
+          <option value="high">High</option>
+          <option value="urgent">Urgent</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Due / deadline (optional)</label>
+      <input class="form-input" id="f-due" type="text" placeholder="e.g. before kick-off, week 3, day 40...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveTask()">Save task</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const START_DATE = new Date('2025-06-02');
+const PHASES = [
+  {id:'discovery', label:'Discovery', weeks:'wk 1–6', color:'#AFA9EC', text:'#26215C', bg:'#EEEDFC', weeks_arr:[1,2,3,4,5,6], desc:'Contextual research, interviews, patient journey'},
+  {id:'framing',   label:'Framing',   weeks:'wk 7–10', color:'#5DCAA5', text:'#04342C', bg:'#E0F5EE', weeks_arr:[7,8,9,10], desc:'Synthesis, design principles, PROMs architecture'},
+  {id:'ideation',  label:'Ideation',  weeks:'wk 11–14', color:'#EF9F27', text:'#412402', bg:'#FDF0D5', weeks_arr:[11,12,13,14], desc:'Visual language, AI strategy, concept development'},
+  {id:'prototype', label:'Prototype + test', weeks:'wk 15–20', color:'#ED93B1', text:'#4B1528', bg:'#FAEAF1', weeks_arr:[15,16,17,18,19,20], desc:'Build, test with users, iterate, report'},
+];
+const MILESTONES = [
+  {label:'Kick-off', day:1, week:1},
+  {label:'Midterm', day:40, week:8},
+  {label:'Green light', day:80, week:16},
+  {label:'Graduation', day:100, week:20},
+];
+const VACATION_WEEKS = [8,9,15,16];
+
+const DEFAULT_TASKS = [
+  {id:'d1',title:'Register in MyCase',desc:'Go to mycase.tudelft.nl — required before kick-off can happen',phase:'urgent',priority:'urgent',done:false,subtasks:[{id:'d1s1',title:'Create new MSc graduation case',done:false},{id:'d1s2',title:'Propose supervisory team in MyCase',done:false}]},
+  {id:'d2',title:'Upload graduation contract with Ksyos',desc:'Must be signed by both parties and uploaded to MyCase before kick-off',phase:'urgent',priority:'urgent',done:false,subtasks:[]},
+  {id:'d3',title:'Upload Project Proposal to MyCase',desc:'At least 3 working days before kick-off. Use the TU Delft template from the graduation website.',phase:'urgent',priority:'urgent',done:false,subtasks:[{id:'d3s1',title:'Download TU Delft Project Proposal template',done:false},{id:'d3s2',title:'Fill in all sections (introduction, problem def, assignment)',done:false},{id:'d3s3',title:'Add milestone dates + planning',done:false}]},
+  {id:'d4',title:'Confirm kick-off meeting',desc:'Schedule with Richard, Sara and Isabella — full supervisory team must attend',phase:'urgent',priority:'high',done:false,subtasks:[]},
+  {id:'d5',title:'Start HREC ethics application',desc:'Submit immediately after kick-off — takes minimum 3 weeks. You need this before any user testing.',phase:'discovery',priority:'urgent',done:false,subtasks:[{id:'d5s1',title:'HREC Checklist',done:false},{id:'d5s2',title:'Informed consent template',done:false},{id:'d5s3',title:'Data management plan',done:false},{id:'d5s4',title:'Submit via Lab Servant software (needs EduVPN off-campus)',done:false}]},
+  {id:'d6',title:'Set up access to Ksyos pilot data',desc:'Clarify with Isabella what data and systems I can access, consent process, recruitment',phase:'discovery',priority:'high',done:false,subtasks:[]},
+  {id:'d7',title:'Contextual interviews — perimenopausal women',desc:'Recruit via Ksyos pilot. Need HREC approval first.',phase:'discovery',priority:'normal',done:false,subtasks:[{id:'d7s1',title:'Draft interview guide',done:false},{id:'d7s2',title:'Recruit 5–8 participants via Isabella',done:false},{id:'d7s3',title:'Conduct + transcribe interviews',done:false}]},
+  {id:'d8',title:'Contextual interviews — clinicians',desc:'Overgangsconsulente + gynaecologist at Ksyos. What do they need from patient data?',phase:'discovery',priority:'normal',done:false,subtasks:[{id:'d8s1',title:'Draft clinician interview guide',done:false},{id:'d8s2',title:'Conduct interviews',done:false}]},
+  {id:'d9',title:'Map Ksyos perimenopause care pathway',desc:'Full patient journey: huisarts referral → Ksyos → overgangsconsulente/gynaecologist → back to GP',phase:'discovery',priority:'normal',done:false,subtasks:[]},
+  {id:'d10',title:'Literature review',desc:'Perimenopause, PROMs/CATs, feminist AI, health literacy, double-sided interfaces',phase:'discovery',priority:'normal',done:false,subtasks:[{id:'d10s1',title:'PROMs + CATs methodology',done:false},{id:'d10s2',title:'Feminist AI / feminist HCI',done:false},{id:'d10s3',title:'Health literacy + visual communication',done:false}]},
+  {id:'d11',title:'Synthesis into design principles',desc:'Bridge patient + clinician needs. The double-sided interface logic. What does "normal" mean to each side?',phase:'framing',priority:'normal',done:false,subtasks:[]},
+  {id:'d12',title:'Define PROMs/CATs question architecture',desc:'In collaboration with overgangsconsulente at Ksyos — standardised but human',phase:'framing',priority:'normal',done:false,subtasks:[]},
+  {id:'d13',title:'Midterm evaluation',desc:'Self-evaluation form due to supervisors 3 working days before meeting (day 40)',phase:'framing',priority:'high',done:false,subtasks:[{id:'d13s1',title:'Fill in midterm self-evaluation form',done:false},{id:'d13s2',title:'Upload to MyCase 3 days before',done:false}]},
+  {id:'d14',title:'Develop visual language concept',desc:'3D models, graphics, non-text-heavy. Health literacy metaphor — reading your body.',phase:'ideation',priority:'normal',done:false,subtasks:[]},
+  {id:'d15',title:'Design AI-assisted input system',desc:'Diary / adaptive questions. Feminist AI: transparent, editable, never prescriptive.',phase:'ideation',priority:'normal',done:false,subtasks:[]},
+  {id:'d16',title:'Design clinician-facing data view',desc:'What does the doctor/consulente actually see? How is the patient data structured for clinical use?',phase:'ideation',priority:'normal',done:false,subtasks:[]},
+  {id:'d17',title:'Build semi-functional prototype',desc:'Patient side + clinician side. Level of fidelity depends on time available.',phase:'prototype',priority:'normal',done:false,subtasks:[]},
+  {id:'d18',title:'User testing — women',desc:'Test prototype with perimenopausal women via Ksyos. Needs HREC approval.',phase:'prototype',priority:'normal',done:false,subtasks:[]},
+  {id:'d19',title:'User testing — clinicians',desc:'Test with overgangsconsulente and/or gynaecologist',phase:'prototype',priority:'normal',done:false,subtasks:[]},
+  {id:'d20',title:'Green light — submit 80% draft report',desc:'Upload to MyCase + run Turnitin plagiarism check via Brightspace IDE graduation org',phase:'prototype',priority:'high',done:false,subtasks:[{id:'d20s1',title:'Request declaration of master course accomplishments (2 wks before)',done:false},{id:'d20s2',title:'Confirm graduation date + timeslot',done:false},{id:'d20s3',title:'Turnitin plagiarism check',done:false}]},
+  {id:'d21',title:'Final report + showcase',desc:'Upload to TU Delft Repository + MyCase at least 1 week before graduation',phase:'finalisation',priority:'normal',done:false,subtasks:[{id:'d21s1',title:'Complete graduation report (PDF)',done:false},{id:'d21s2',title:'Prepare showcase (video or poster — agree with supervisors)',done:false},{id:'d21s3',title:'Upload to TU Delft Repository',done:false},{id:'d21s4',title:'Submit diploma application in MyCase',done:false},{id:'d21s5',title:'Book graduation room with IDE Service Desk',done:false}]},
+];
+
+let state = {tasks: [], taskStates: {}};
+let currentFilter = 'all';
+let editingId = null;
+
+function load() {
+  try {
+    const s = localStorage.getItem('vera_gp_v2');
+    if (s) {
+      state = JSON.parse(s);
+      if (!state.taskStates) state.taskStates = {};
+    } else {
+      state.tasks = JSON.parse(JSON.stringify(DEFAULT_TASKS));
+      save();
+    }
+  } catch(e) {
+    state.tasks = JSON.parse(JSON.stringify(DEFAULT_TASKS));
+  }
+}
+
+function save() {
+  localStorage.setItem('vera_gp_v2', JSON.stringify(state));
+}
+
+function getCurrentWorkday() {
+  const now = new Date();
+  let days = 0;
+  const cur = new Date(START_DATE);
+  while (cur <= now) {
+    const dow = cur.getDay();
+    if (dow !== 0 && dow !== 6) days++;
+    cur.setDate(cur.getDate() + 1);
+  }
+  return Math.max(1, days);
+}
+
+function getCurrentPhase(day) {
+  if (day <= 30) return PHASES[0];
+  if (day <= 50) return PHASES[1];
+  if (day <= 70) return PHASES[2];
+  return PHASES[3];
+}
+
+function renderHome() {
+  const day = getCurrentWorkday();
+  const phase = getCurrentPhase(day);
+  const daysLeft = 100 - day;
+
+  document.getElementById('stat-day').textContent = day;
+  document.getElementById('stat-done').textContent = state.tasks.filter(t => t.done).length;
+  document.getElementById('stat-urgent').textContent = state.tasks.filter(t => !t.done && (t.priority === 'urgent' || t.priority === 'high')).length;
+
+  document.getElementById('phase-banner').innerHTML = `
+    <div class="phase-banner-left">
+      <div class="phase-label">Current phase</div>
+      <div class="phase-name">${phase.label}</div>
+      <div class="phase-desc">${phase.desc}</div>
+    </div>
+    <div class="phase-days">
+      <div class="phase-days-num">${daysLeft}</div>
+      <div class="phase-days-label">days remaining</div>
+    </div>
+  `;
+
+  const pct = Math.min(100, Math.round(day / 100 * 100));
+  document.getElementById('tl-track').innerHTML = `
+    <div class="timeline-seg seg-done" style="width:${pct}%"></div>
+    <div class="timeline-seg seg-future" style="width:${100-pct}%"></div>
+  `;
+
+  const msHtml = MILESTONES.map(m => {
+    const cls = day >= m.day ? (day === m.day ? 'active' : 'done') : '';
+    return `<div class="tm-item">
+      <div class="tm-dot ${cls}"></div>
+      <div class="tm-label">${m.label}</div>
+      <div class="tm-day">day ${m.day}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('tl-milestones').innerHTML = msHtml;
+
+  const phaseRowsHtml = PHASES.map(p => {
+    const isActive = p.id === phase.id;
+    return `<div class="phase-row">
+      <div class="phase-row-label">${p.label}</div>
+      <div class="phase-row-bar" style="background:${p.bg};color:${p.text};${isActive ? 'outline:2px solid '+p.color : ''}">
+        ${isActive ? '▸ now' : ''}
+        <span class="phase-wk">${p.weeks}</span>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('phase-rows').innerHTML = phaseRowsHtml;
+
+  const urgent = state.tasks.filter(t => !t.done && (t.priority === 'urgent' || t.priority === 'high')).slice(0, 8);
+  if (urgent.length === 0) {
+    document.getElementById('priority-list').innerHTML = '<div class="empty">No urgent tasks — you\'re on top of it!</div>';
+  } else {
+    document.getElementById('priority-list').innerHTML = urgent.map(t => `
+      <div class="priority-task ${t.done ? 'done' : ''} ${t.priority === 'urgent' ? 'pt-urgent' : ''}" onclick="toggleTaskDone('${t.id}')">
+        <div class="pt-cb"></div>
+        <div class="pt-body">
+          <div class="pt-title">${esc(t.title)}</div>
+          <div class="pt-meta">${t.priority === 'urgent' ? '🔴 urgent — ' : '🟡 high — '}${esc(t.phase)}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+function renderTasks() {
+  const phases = ['urgent','discovery','framing','ideation','prototype','finalisation'];
+  const phaseLabels = {urgent:'⚡ Urgent / admin', discovery:'Phase 1 — Discovery', framing:'Phase 2 — Framing', ideation:'Phase 3 — Ideation', prototype:'Phase 4 — Prototype + test', finalisation:'Finalisation'};
+
+  const filters = ['all', ...phases];
+  document.getElementById('filter-row').innerHTML = filters.map(f => `
+    <button class="filter-btn ${currentFilter === f ? 'active' : ''}" onclick="setFilter('${f}')">${f === 'all' ? 'All' : phaseLabels[f] || f}</button>
+  `).join('');
+
+  let html = '';
+  const groupedPhases = currentFilter === 'all' ? phases : [currentFilter];
+
+  groupedPhases.forEach(ph => {
+    const tasks = state.tasks.filter(t => t.phase === ph);
+    if (tasks.length === 0) return;
+    const doneCount = tasks.filter(t => t.done).length;
+    html += `<div class="task-group">
+      <div class="tg-title">${phaseLabels[ph] || ph} <span class="tg-count">${doneCount}/${tasks.length}</span></div>`;
+    tasks.forEach(t => {
+      const isOpen = state.taskStates[t.id + '_open'];
+      const subtaskDone = t.subtasks ? t.subtasks.filter(s => s.done).length : 0;
+      const subtaskTotal = t.subtasks ? t.subtasks.length : 0;
+      html += `<div class="task-card ${t.done ? 'done' : ''} ${t.priority === 'urgent' ? 'urgent' : ''}">
+        <div class="task-main">
+          <div class="tc-cb" onclick="toggleTaskDone('${t.id}'); event.stopPropagation()"></div>
+          <div class="tc-body" onclick="toggleOpen('${t.id}')">
+            <div class="tc-title">${esc(t.title)}</div>
+            ${t.desc ? `<div class="tc-desc">${esc(t.desc)}</div>` : ''}
+            <div class="tc-meta">
+              ${t.priority === 'urgent' ? '<span class="tag tag-red">urgent</span>' : t.priority === 'high' ? '<span class="tag tag-amber">high</span>' : ''}
+              ${subtaskTotal > 0 ? `<span style="font-size:11px;color:var(--text3)">${subtaskDone}/${subtaskTotal} subtasks</span>` : ''}
+              ${t.due ? `<span style="font-size:11px;color:var(--text3)">📅 ${esc(t.due)}</span>` : ''}
+            </div>
+          </div>
+          ${subtaskTotal > 0 || true ? `<div class="tc-expand ${isOpen ? 'open' : ''}" onclick="toggleOpen('${t.id}')">›</div>` : ''}
+        </div>
+        <div class="subtasks ${isOpen ? 'open' : ''}" id="sub-${t.id}">
+          ${(t.subtasks || []).map(s => `
+            <div class="subtask ${s.done ? 'done' : ''}" onclick="toggleSubtask('${t.id}','${s.id}')">
+              <div class="st-cb"></div>
+              <span>${esc(s.title)}</span>
+            </div>
+          `).join('')}
+          <button class="add-subtask-btn" onclick="addSubtask('${t.id}')">+ add subtask</button>
+        </div>
+        <div class="task-actions ${isOpen ? 'open' : ''}">
+          <button class="act-btn" onclick="editTask('${t.id}')">✏️ Edit</button>
+          <button class="act-btn danger" onclick="deleteTask('${t.id}')">🗑 Delete</button>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  });
+
+  if (!html) html = '<div class="empty">No tasks yet — add one above!</div>';
+  document.getElementById('task-list').innerHTML = html;
+}
+
+function toggleOpen(id) {
+  state.taskStates[id + '_open'] = !state.taskStates[id + '_open'];
+  save();
+  renderTasks();
+}
+
+function toggleTaskDone(id) {
+  const t = state.tasks.find(t => t.id === id);
+  if (t) { t.done = !t.done; save(); renderHome(); renderTasks(); }
+}
+
+function toggleSubtask(taskId, subId) {
+  const t = state.tasks.find(t => t.id === taskId);
+  if (t && t.subtasks) {
+    const s = t.subtasks.find(s => s.id === subId);
+    if (s) { s.done = !s.done; save(); renderTasks(); }
+  }
+}
+
+function addSubtask(taskId) {
+  const title = prompt('Subtask:');
+  if (!title || !title.trim()) return;
+  const t = state.tasks.find(t => t.id === taskId);
+  if (t) {
+    if (!t.subtasks) t.subtasks = [];
+    t.subtasks.push({id: 'st_' + Date.now(), title: title.trim(), done: false});
+    save(); renderTasks();
+  }
+}
+
+function editTask(id) {
+  const t = state.tasks.find(t => t.id === id);
+  if (!t) return;
+  editingId = id;
+  document.getElementById('modal-title').textContent = 'Edit task';
+  document.getElementById('f-title').value = t.title;
+  document.getElementById('f-desc').value = t.desc || '';
+  document.getElementById('f-phase').value = t.phase;
+  document.getElementById('f-priority').value = t.priority;
+  document.getElementById('f-due').value = t.due || '';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function deleteTask(id) {
+  if (!confirm('Delete this task?')) return;
+  state.tasks = state.tasks.filter(t => t.id !== id);
+  save(); renderHome(); renderTasks();
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  renderTasks();
+}
+
+function openModal() {
+  editingId = null;
+  document.getElementById('modal-title').textContent = 'Add task';
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-desc').value = '';
+  document.getElementById('f-phase').value = 'discovery';
+  document.getElementById('f-priority').value = 'normal';
+  document.getElementById('f-due').value = '';
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('f-title').focus(), 50);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  editingId = null;
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function saveTask() {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) { document.getElementById('f-title').focus(); return; }
+  const data = {
+    title,
+    desc: document.getElementById('f-desc').value.trim(),
+    phase: document.getElementById('f-phase').value,
+    priority: document.getElementById('f-priority').value,
+    due: document.getElementById('f-due').value.trim(),
+  };
+  if (editingId) {
+    const t = state.tasks.find(t => t.id === editingId);
+    if (t) Object.assign(t, data);
+  } else {
+    state.tasks.push({...data, id: 'u_' + Date.now(), done: false, subtasks: []});
+  }
+  save(); closeModal(); renderHome(); renderTasks();
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-tab')[name === 'home' ? 0 : 1].classList.add('active');
+  if (name === 'tasks') renderTasks();
+  if (name === 'home') renderHome();
+}
+
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+load();
+renderHome();
+</script>
+</body>
+</html>
