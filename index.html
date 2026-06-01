@@ -627,8 +627,8 @@
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label">Due / deadline (optional)</label>
-      <input class="form-input" id="f-due" type="text" placeholder="e.g. before kick-off, week 3, day 40...">
+      <label class="form-label">Due date (optional)</label>
+      <input class="form-input" id="f-due" type="date">
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
@@ -821,7 +821,7 @@ function renderTasks() {
   groupedPhases.forEach(ph => {
     const showDoneEl = document.getElementById('show-done');
     const showDone = showDoneEl ? showDoneEl.checked : false;
-    const tasks = state.tasks.filter(t => t.phase === ph && (showDone || !t.done));
+    const tasks = state.tasks.filter(t => t.phase === ph && (showDone || !t.done)).sort(function(a,b){if(!a.due&&!b.due)return 0;if(!a.due)return 1;if(!b.due)return -1;return a.due.localeCompare(b.due);});
     if (tasks.length === 0) return;
     const doneCount = tasks.filter(t => t.done).length;
     // Open if: manually toggled, is current/urgent phase, or filter is specific
@@ -837,7 +837,15 @@ function renderTasks() {
         ${phaseLabels[ph] || ph} <span class="tg-count">${doneCount}/${tasks.length}</span>
       </div>`;
     if (!isOpen) { html += '</div>'; return; }
-    tasks.forEach(function(t) {
+    
+    const topicLabels = {literature:'Literature', interviews:'Interviews', analysis:'Analysis', design:'Design', prototype:'Prototype', writing:'Writing / report', practical:'Practical / admin', other:'Other'};
+    const topicOrder = ['literature','interviews','analysis','design','prototype','writing','practical','other',''];
+    const byTopic = {};
+    tasks.forEach(function(t) { var tp = t.topic || ''; if (!byTopic[tp]) byTopic[tp] = []; byTopic[tp].push(t); });
+    const hasTopics = Object.keys(byTopic).some(function(k) { return k !== ''; });
+
+    function renderTaskCards(taskList) {
+      taskList.forEach(function(t) {
       var isOpen = state.taskStates[t.id + '_open'];
       var subtaskDone = t.subtasks ? t.subtasks.filter(function(s){ return s.done; }).length : 0;
       var subtaskTotal = t.subtasks ? t.subtasks.length : 0;
@@ -861,7 +869,8 @@ function renderTasks() {
         + '<div class="tc-title">' + esc(t.title) + '</div>'
         + '</div>'
         + '<div class="tc-right">'
-        + (subtaskTotal > 0 ? '<span style="font-size:11px;color:var(--text3);font-family:monospace;margin-right:6px">' + subtaskDone + '/' + subtaskTotal + '</span>' : '')
+        + (t.due&&!t.done?(function(d){try{var dd=new Date(d+'T12:00:00'),n=new Date();n.setHours(0,0,0,0);var dy=Math.round((dd-n)/86400000),c=dy<0?'var(--red-text)':dy<=7?'var(--amber-text)':'var(--text3)',l=dy<0?Math.abs(dy)+'d ago':dy===0?'today':dy+'d';return '<span style="font-size:10px;color:'+c+';margin-right:5px">'+l+'</span>';}catch(e){return '';}})(t.due):'')
+       + (subtaskTotal > 0 ? '<span style="font-size:11px;color:var(--text3);font-family:monospace;margin-right:6px">' + subtaskDone + '/' + subtaskTotal + '</span>' : '')
         + '<span class="tc-priority-dot" style="background:' + dotColor + '"></span>'
         + '<button class="tc-icon-btn" onclick="editTask(\'' + t.id + '\')" title="Edit"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9.5 1.5l2 2-7 7H2.5v-2l7-7z"/></svg></button>'
         + '<button class="tc-icon-btn tc-icon-delete" onclick="deleteTask(\'' + t.id + '\')" title="Delete"><svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="2,3.5 11,3.5"/><path d="M4.5 3.5V2.5h4v1"/><path d="M5 3.5v6M8 3.5v6"/><rect x="3" y="3.5" width="7" height="7.5" rx="1"/></svg></button>'
@@ -871,11 +880,29 @@ function renderTasks() {
         + '<div class="' + subtaskCls + '" id="sub-' + t.id + '">'
         + (t.desc ? '<div style="font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.5">' + esc(t.desc) + '</div>' : '')
         + subtaskRows
-        + (t.due ? '<div style="font-size:11px;color:var(--text3);margin-top:6px">Due: ' + esc(t.due) + '</div>' : '')
+        + (t.due ? '<div style="font-size:11px;color:var(--text3);margin-top:6px">Due: ' + (function(d){try{return new Date(d+'T12:00:00').toLocaleDateString('en-NL',{day:'numeric',month:'short',year:'numeric'});}catch(e){return d;}})(t.due) + '</div>' : '')
         + '<button class="add-subtask-btn" onclick="addSubtask(\'' + t.id + '\')">+ add subtask</button>'
         + '</div>'
         + '</div>';
     });
+    }
+
+    if (hasTopics) {
+      topicOrder.forEach(function(tp) {
+        if (!byTopic[tp] || !byTopic[tp].length) return;
+        const topicKey = 'topic_' + ph + '_' + tp + '_open';
+        const topicOpen = state.taskStates[topicKey] !== undefined ? state.taskStates[topicKey] : true;
+        const topicLabel = tp ? (topicLabels[tp] || tp) : 'General';
+        html += '<div style="margin:8px 0 4px;padding:5px 0 3px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;display:flex;align-items:center;gap:4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3)" onclick="toggleTopicOpen(\'' + ph + '\',\'' + tp + '\')">'
+          + '<span style="display:inline-block;transition:transform 0.15s;transform:rotate(' + (topicOpen?'90':'0') + 'deg)">›</span>'
+          + topicLabel + '<span style="font-weight:400;opacity:0.7;margin-left:3px">(' + byTopic[tp].length + ')</span>'
+          + '</div>';
+        if (topicOpen) { renderTaskCards(byTopic[tp]); }
+      });
+    } else {
+      renderTaskCards(tasks);
+    }
+
     html += '</div>';
   });
 
@@ -885,6 +912,14 @@ function renderTasks() {
 
 function toggleOpen(id) {
   state.taskStates[id + '_open'] = !state.taskStates[id + '_open'];
+  save();
+  renderTasks();
+}
+
+function toggleTopicOpen(ph, tp) {
+  var key = 'topic_' + ph + '_' + tp + '_open';
+  var cur = state.taskStates[key] !== undefined ? state.taskStates[key] : true;
+  state.taskStates[key] = !cur;
   save();
   renderTasks();
 }
