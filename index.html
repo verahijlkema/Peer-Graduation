@@ -264,7 +264,7 @@
   .tl-week { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
   .tl-week-label { font-size: 11px; color: var(--text3); width: 34px; flex-shrink: 0; text-align: right; }
   .tl-week-bar {
-    flex: 1; height: 18px; border-radius: var(--radius-sm);
+    flex: 1; height: 16px; border-radius: var(--radius-sm);
     display: flex; align-items: center; padding: 0 10px;
     font-size: 11px; gap: 4px;
   }
@@ -1348,23 +1348,7 @@ function renderFullTimeline() {
 
   var allRows = '';
   orderedSections.forEach(function(sec) {
-    if (sec.type === 'vacation') {
-      var vacCells = '';
-      for (var w=1; w<=TOTAL_WEEKS; w++) {
-        var inVac = w>=sec.start && w<=sec.end;
-        vacCells += '<div style="background:'+(inVac?'var(--surface2)':'var(--bg)')+';border-right:1px solid var(--border);height:100%"></div>';
-      }
-      var ws = weekStart(sec.start), we = weekStart(sec.end);
-      we.setDate(we.getDate()+6);
-      var vacLabel = monthAbbr(ws)+' – '+monthAbbr(we);
-      allRows += '<div style="display:contents">' +
-        '<div style="display:flex;align-items:center;padding:5px 10px;background:var(--surface2);border-bottom:1px solid var(--border);position:sticky;left:0;z-index:2">' +
-          '<span style="font-size:10px;font-style:italic;color:var(--text3)">🏖 vacation &nbsp;·&nbsp; '+esc(vacLabel)+'</span>' +
-        '</div>' +
-        '<div style="display:grid;grid-template-columns:repeat('+TOTAL_WEEKS+',1fr);border-bottom:1px solid var(--border)">' + vacCells + '</div>' +
-      '</div>';
-      return;
-    }
+
 
     // phase header
     var ph = phaseById(sec.id);
