@@ -1903,11 +1903,13 @@ function savePhaseEditor() {
 
 // ── DRAG AND DROP TASK REORDERING ──────────────────────────────────────────
 let draggedElementId = null;
+let dragTargetId = null;
 
 function handleDragStart(e) {
   const card = e.target.closest('.task-card');
   if (!card) return;
   draggedElementId = card.getAttribute('data-id');
+  dragTargetId = null;
   card.classList.add('dragging');
   e.dataTransfer.effectAllowed = 'move';
 }
@@ -1916,28 +1918,27 @@ function handleDragOver(e) {
   e.preventDefault();
   const overCard = e.target.closest('.task-card');
   if (!overCard) return;
-  
   const targetId = overCard.getAttribute('data-id');
-  if (targetId === draggedElementId) return;
-
-  const draggedIndex = state.tasks.findIndex(t => t.id === draggedElementId);
-  const targetIndex = state.tasks.findIndex(t => t.id === targetId);
-
-  if (draggedIndex !== -1 && targetIndex !== -1) {
-    if (state.tasks[draggedIndex].phase === state.tasks[targetIndex].phase) {
-      const [removed] = state.tasks.splice(draggedIndex, 1);
-      state.tasks.splice(targetIndex, 0, removed);
-      save();
-      renderTasks();
-    }
-  }
+  if (targetId !== draggedElementId) dragTargetId = targetId;
 }
 
 function handleDragEnd(e) {
   const card = e.target.closest('.task-card');
   if (card) card.classList.remove('dragging');
+  if (draggedElementId && dragTargetId) {
+    const di = state.tasks.findIndex(t => t.id === draggedElementId);
+    const ti = state.tasks.findIndex(t => t.id === dragTargetId);
+    if (di !== -1 && ti !== -1 &&
+        state.tasks[di].phase === state.tasks[ti].phase) {
+      const [removed] = state.tasks.splice(di, 1);
+      state.tasks.splice(ti, 0, removed);
+      save();
+    }
+  }
   draggedElementId = null;
-  renderHome(); 
+  dragTargetId = null;
+  renderTasks();
+  renderHome();
 }
 </script>
 
