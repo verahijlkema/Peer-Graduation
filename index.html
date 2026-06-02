@@ -368,6 +368,16 @@
   .tag { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; }
   .tag-red { background: var(--red-bg); color: var(--red-text); }
   .tag-amber { background: var(--amber-bg); color: var(--amber-text); }
+
+  /* GANTT */
+  .gantt-act-btn {
+    width:22px;height:22px;display:flex;align-items:center;justify-content:center;
+    background:none;border:none;cursor:pointer;color:var(--text3);border-radius:3px;
+    opacity:0;transition:opacity 0.1s,background 0.1s,color 0.1s;flex-shrink:0;
+  }
+  .gantt-row-label:hover .gantt-act-btn { opacity:1; }
+  .gantt-act-btn:hover { background:var(--surface2);color:var(--text); }
+  .gantt-del-btn:hover { background:var(--red-bg);color:var(--red-text); }
 </style>
 </head>
 <body>
@@ -442,13 +452,17 @@
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
           <div class="card-title" style="margin-bottom:0">project timeline</div>
           <div style="display:flex;gap:6px;align-items:center">
+            <button onclick="openGanttRowModal(null)" style="font-size:11px;color:var(--text2);background:none;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;padding:5px 10px;transition:border-color 0.1s,color 0.1s" onmouseover="this.style.borderColor='var(--border2)';this.style.color='var(--text)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
+              Add activity
+            </button>
             <button onclick="openMilestoneEditor()" style="font-size:11px;color:var(--text2);background:none;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;padding:5px 10px;transition:border-color 0.1s,color 0.1s" onmouseover="this.style.borderColor='var(--border2)';this.style.color='var(--text)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">
               <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M10 1.5l2.5 2.5-7.5 7.5H2.5V9L10 1.5z"/></svg>
               Edit milestones
             </button>
           </div>
         </div>
-        <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Click any week bar to toggle vacation</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Click a row to edit · Drag to rearrange · <span style="color:var(--purple)">Click any week bar to toggle vacation</span></div>
         <div id="full-timeline"></div>
       </div>
     </div>
@@ -638,14 +652,69 @@
 <script>
 const START_DATE = new Date('2026-06-01T00:00:00');
 
-let PHASES = [
-  {id:'preparation', label:'PREPARATION', weeks:'pre', color:'#C8C4E8', text:'#26215C', bg:'#EEEDFC', weeks_arr:[], desc:'Administrative setup, register in MyCase, confirm kick-off, set up all project logistics'},
-  {id:'discovery',   label:'DISCOVERY',   weeks:'wk 1-6',  color:'#AFA9EC', text:'#26215C', bg:'#EEEDFC', weeks_arr:[1,2,3,4,5,6],       desc:'Map the domain: understand perimenopause, the NL care system, existing tools, and what makes patient-reported data clinically meaningful. Conduct literature review and contextual user research.'},
-  {id:'framing',     label:'FRAMING',     weeks:'wk 7-11', color:'#5DCAA5', text:'#04342C', bg:'#E0F5EE', weeks_arr:[5,6,8,9,10,11],     desc:'Translate research insights into design principles. Define what the double-sided interface needs to do for both patient and clinician. Frame the design challenge.'},
-  {id:'ideation',    label:'IDEATION',    weeks:'wk 12-16',color:'#EF9F27', text:'#412402', bg:'#FDF0D5', weeks_arr:[10,11,12,13,14,15,16],desc:'Develop and test concepts — visual language, AI input strategy, clinician data view, iterative feedback rounds. Generate and evaluate multiple design directions.'},
-  {id:'prototype',   label:'TESTING',     weeks:'wk 17-20',color:'#ED93B1', text:'#4B1528', bg:'#FAEAF1', weeks_arr:[17,18,19,20],        desc:'Build and test the semi-functional prototype with real users on both sides of the interface. Validate design decisions through empirical testing.'},
-  {id:'finalisation',label:'FINALISATION',weeks:'wk 21-25',color:'#97C459', text:'#173404', bg:'#EAF3DE', weeks_arr:[21,22,23,24,25],     desc:'Write up, refine, prepare for Green Light and public graduation presentation. Final documentation and reflection.'},
+// DEFAULT_PHASES maps phase id → calendar week ranges (matching your planning image exactly)
+// Calendar wk 7 = vacation, wk 14-16 = vacation
+// Discovery: cal wk 1-6, Definition: cal wk 8-10, Ideation: cal wk 11-13
+// Prototyping: cal wk 17-19, Validation: cal wk 20-21, Finalizing: cal wk 22-24
+const DEFAULT_PHASES = [
+  {id:'discovery',   label:'DISCOVER',    calWeeks:[1,2,3,4,5,6],      bg:'#EEEDFC', text:'#26215C', desc:'Map the domain: understand perimenopause, the NL care system, existing tools, and what makes patient-reported data clinically meaningful.'},
+  {id:'framing',     label:'DEFINE',      calWeeks:[8,9,10],            bg:'#E0F5EE', text:'#04342C', desc:'Synthesise research into design principles. Frame the double-sided design challenge.'},
+  {id:'ideation',    label:'DEVELOP',     calWeeks:[11,12,13],          bg:'#FDF0D5', text:'#412402', desc:'Generate and evaluate design directions. Visual language, IA, co-creation.'},
+  {id:'prototype',   label:'DELIVER',     calWeeks:[17,18,19,20,21],    bg:'#FAEAF1', text:'#4B1528', desc:'Build and test the semi-functional prototype with real users on both sides of the interface.'},
+  {id:'finalisation',label:'FINALISE',    calWeeks:[22,23,24],          bg:'#EAF3DE', text:'#173404', desc:'Write up, refine, prepare for Green Light and public graduation presentation.'},
 ];
+
+// ── Gantt activities (the actual planning rows) ───────────────────────────────
+const DEFAULT_GANTT = [
+  // phase_id, label, startWk, endWk
+  {id:'g1',  phase:'discovery',   label:'Literature: perimenopause biology & NHG-standaard',           startWk:1,  endWk:3},
+  {id:'g2',  phase:'discovery',   label:'Literature: NL healthcare system & care-seeking behaviour',    startWk:2,  endWk:4},
+  {id:'g3',  phase:'discovery',   label:'Literature: PROMs/CATs, health data quality, feminist AI',     startWk:3,  endWk:5},
+  {id:'g4',  phase:'discovery',   label:'Literature: design precedents & double-sided interfaces',      startWk:4,  endWk:6},
+  {id:'g5',  phase:'discovery',   label:'Stakeholder mapping + Ksyos access setup',                     startWk:1,  endWk:2},
+  {id:'g6',  phase:'discovery',   label:'Submit HREC ethics application',                               startWk:1,  endWk:1},
+  {id:'g7',  phase:'discovery',   label:'Contextual interviews: clinicians (GP, overgangsconsulente)',  startWk:3,  endWk:5},
+  {id:'g8',  phase:'discovery',   label:'Contextual interviews: patients (4–6 women via Ksyos)',        startWk:4,  endWk:6},
+  {id:'g9',  phase:'discovery',   label:'Patient journey map — draft',                                  startWk:5,  endWk:6},
+  {id:'g10', phase:'framing',     label:'Synthesis: cluster insights from interviews + literature',     startWk:8,  endWk:8},
+  {id:'g11', phase:'framing',     label:'Complete patient journey map (patient + clinician view)',      startWk:8,  endWk:9},
+  {id:'g12', phase:'framing',     label:'Define design principles (health literacy + data quality)',    startWk:9,  endWk:9},
+  {id:'g13', phase:'framing',     label:'Frame the double-sided design objective/challenge',            startWk:9,  endWk:10},
+  {id:'g14', phase:'framing',     label:'Define evaluation criteria',                                   startWk:10, endWk:10},
+  {id:'g15', phase:'ideation',    label:'Ideation: concept generation (multiple directions)',           startWk:11, endWk:11},
+  {id:'g16', phase:'ideation',    label:'Brainstorm & co-creation session with Ksyos or patients',     startWk:11, endWk:12},
+  {id:'g17', phase:'ideation',    label:'Evaluate concepts against criteria',                           startWk:12, endWk:12},
+  {id:'g18', phase:'ideation',    label:'Select direction: develop 2–3 stronger concepts',             startWk:12, endWk:13},
+  {id:'g19', phase:'ideation',    label:'Information architecture design (patient + clinician side)',   startWk:13, endWk:13},
+  {id:'g20', phase:'ideation',    label:'Visual language exploration',                                  startWk:13, endWk:13},
+  {id:'g21', phase:'prototype',   label:'Prototype build: patient side (core flows, key screens)',      startWk:17, endWk:18},
+  {id:'g22', phase:'prototype',   label:'Prototype build: clinician side (data view, actionability)',   startWk:17, endWk:18},
+  {id:'g23', phase:'prototype',   label:'User testing round 1: patients',                               startWk:18, endWk:19},
+  {id:'g24', phase:'prototype',   label:'User testing round 1: clinicians',                             startWk:18, endWk:19},
+  {id:'g25', phase:'prototype',   label:'Iterate on prototype based on test results',                   startWk:19, endWk:20},
+  {id:'g26', phase:'prototype',   label:'User testing round 2 (targeted, specific pain points)',        startWk:20, endWk:21},
+  {id:'g27', phase:'finalisation',label:'Final report writing',                                         startWk:22, endWk:23},
+  {id:'g28', phase:'finalisation',label:'Turnitin check',                                               startWk:23, endWk:23},
+  {id:'g29', phase:'finalisation',label:'Presentation preparation + practice',                          startWk:23, endWk:24},
+];
+
+function loadGantt() {
+  try { var s = localStorage.getItem('vera_gantt_v1'); if (s) return JSON.parse(s); } catch(e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_GANTT));
+}
+function saveGantt(rows) { localStorage.setItem('vera_gantt_v1', JSON.stringify(rows)); }
+
+function loadPhases() {
+  try {
+    var s = localStorage.getItem('vera_phases_v1');
+    if (s) return JSON.parse(s);
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(DEFAULT_PHASES));
+}
+function savePhases(phases) { localStorage.setItem('vera_phases_v1', JSON.stringify(phases)); }
+
+// PHASES kept for task phase labels — rebuilt on init and after phase edits
+var PHASES = [{id:'preparation', label:'PREPARATION', desc:'Administrative setup, register in MyCase, confirm kick-off, set up all project logistics'}].concat(loadPhases());
 
 const DEFAULT_TASKS = [
   {id:'d1',title:'Register in MyCase',desc:'Go to mycase.tudelft.nl — required before kick-off',phase:'preparation',priority:'deadline',topic:'practical',done:false,subtasks:[{id:'s1',title:'Fill in project details',done:false},{id:'s2',title:'Upload supervisor agreement',done:false}],due:'2026-06-07'},
@@ -754,10 +823,11 @@ function getCurrentPhase() {
   var now = new Date(); now.setHours(0,0,0,0);
   var start = new Date(START_DATE); start.setHours(0,0,0,0);
   var calWeek = Math.max(1, Math.ceil((now - start) / (7 * 24 * 3600 * 1000)) + 1);
-  for (var i = 0; i < PHASES.length; i++) {
-    if (PHASES[i].weeks_arr.indexOf(calWeek) >= 0) return PHASES[i];
+  var phases = loadPhases();
+  for (var i = 0; i < phases.length; i++) {
+    if (phases[i].calWeeks && phases[i].calWeeks.indexOf(calWeek) >= 0) return phases[i];
   }
-  return PHASES[PHASES.length - 1];
+  return phases[phases.length - 1];
 }
 
 function getPhaseForId(phaseId) {
@@ -829,47 +899,37 @@ function renderNextUp() {
 function renderHomeTimeline() {
   var tl = loadTimeline();
   var vacWks = tl.vac;
-  var msWks = tl.ms;
-  var day = getCurrentWorkday();
   var now = new Date(); now.setHours(0,0,0,0);
   var start = new Date(START_DATE); start.setHours(0,0,0,0);
   var calWeek = Math.max(1, Math.ceil((now - start) / (7 * 24 * 3600 * 1000)) + 1);
+  var phases = loadPhases();
 
-  var phaseColors = [
-    {label:'DISCOVERY',    workWeeks:[1,2,3,4,5,6],     bg:'#EEEDFC', text:'#26215C'},
-    {label:'FRAMING',      workWeeks:[7,8,9,10,11],      bg:'#E0F5EE', text:'#04342C'},
-    {label:'IDEATION',     workWeeks:[12,13,14,15,16],   bg:'#FDF0D5', text:'#412402'},
-    {label:'TESTING',      workWeeks:[17,18,19,20],      bg:'#FAEAF1', text:'#4B1528'},
-    {label:'FINALISATION', workWeeks:[21,22,23,24,25],   bg:'#EAF3DE', text:'#173404'},
-  ];
-
-  function getPhaseColor(workWk) {
-    for (var pi = 0; pi < phaseColors.length; pi++) {
-      if (phaseColors[pi].workWeeks.indexOf(workWk) >= 0) return phaseColors[pi];
+  function getPhaseForCalWeek(cw) {
+    for (var pi = 0; pi < phases.length; pi++) {
+      if (phases[pi].calWeeks && phases[pi].calWeeks.indexOf(cw) >= 0) return phases[pi];
     }
     return null;
   }
 
-  // Compact home timeline — show phases as bars
+  var totalWeeks = 25;
+  for (var i = 0; i < phases.length; i++) {
+    if (phases[i].calWeeks && phases[i].calWeeks.length > 0) {
+      var maxW = Math.max.apply(null, phases[i].calWeeks);
+      if (maxW > totalWeeks) totalWeeks = maxW;
+    }
+  }
+
   var html = '';
   var shownPhases = {};
-  var workWkNum = 0;
-  var totalWeeks = Math.max(25, 20 + vacWks.length);
-
   for (var w = 1; w <= totalWeeks; w++) {
     var isVac = vacWks.indexOf(w) >= 0;
-    if (!isVac) workWkNum++;
-    var pc = isVac ? null : getPhaseColor(workWkNum);
+    var pc = isVac ? null : getPhaseForCalWeek(w);
     if (!pc || shownPhases[pc.label]) continue;
-    // Find end week of this phase
     var endW = w;
-    var wkN = workWkNum;
-    for (var ww = w + 1; ww <= totalWeeks; ww++) {
-      var isV2 = vacWks.indexOf(ww) >= 0;
-      if (!isV2) wkN++;
-      var pc2 = isV2 ? null : getPhaseColor(wkN);
+    for (var ww = w + 1; ww <= totalWeeks + 5; ww++) {
+      var pc2 = vacWks.indexOf(ww) >= 0 ? null : getPhaseForCalWeek(ww);
       if (pc2 && pc2.label === pc.label) endW = ww;
-      else if (!isV2) break;
+      else if (pc2 && pc2.label !== pc.label) break;
     }
     shownPhases[pc.label] = true;
     var isCurrent = calWeek >= w && calWeek <= endW;
@@ -877,7 +937,7 @@ function renderHomeTimeline() {
       '<div class="tl-phase-label-col">' + pc.label + '</div>' +
       '<div class="tl-phase-bar' + (isCurrent ? ' current' : '') + '" style="background:' + pc.bg + ';color:' + pc.text + '">' +
       (isCurrent ? '<span style="font-size:11px;font-weight:600">now</span>' : '') +
-      '<span style="margin-left:auto;font-size:10px;opacity:0.7">wk ' + w + '–' + endW + '</span>' +
+      '<span style="margin-left:auto;font-size:10px;opacity:0.7">wk ' + w + '\u2013' + endW + '</span>' +
       '</div>' +
       '</div>';
   }
@@ -1181,76 +1241,342 @@ function saveTask() {
 }
 
 // ── PLANNING ─────────────────────────────────────────────────────────────────
+
+// ── GANTT RENDERER ────────────────────────────────────────────────────────────
 function renderFullTimeline() {
   var tl = loadTimeline();
   var vacWks = tl.vac;
   var msWks = tl.ms;
   var now = new Date(); now.setHours(0,0,0,0);
   var start = new Date(START_DATE); start.setHours(0,0,0,0);
-  var currentWeek = Math.max(1, Math.ceil((now - start) / (7 * 24 * 3600 * 1000)) + 1);
+  var currentWeek = Math.max(1, Math.ceil((now - start) / (7*24*3600*1000)) + 1);
+  var phases = loadPhases();
+  var gantt = loadGantt();
   var dates = getDates();
-  var totalWeeks = Math.max(25, 20 + vacWks.length);
+  var TOTAL_WEEKS = 25;
 
-  function getWeekDates(weekNum) {
-    var ws = new Date(START_DATE);
-    ws.setDate(ws.getDate() + (weekNum - 1) * 7);
-    var we = new Date(ws); we.setDate(we.getDate() + 6);
-    return {start: ws, end: we};
+  function phaseById(id) {
+    return phases.find(function(p){return p.id===id;}) || {bg:'var(--surface2)',text:'var(--text2)',label:''};
   }
-  function datesInWeek(weekNum) {
-    var wd = getWeekDates(weekNum);
-    return dates.filter(function(d) {
-      var dd = new Date(d.date + 'T12:00:00');
-      return dd >= wd.start && dd <= wd.end;
+  function weekStart(w) {
+    var d = new Date(START_DATE); d.setDate(d.getDate()+(w-1)*7); return d;
+  }
+  function monthAbbr(d) {
+    return d.toLocaleDateString('en-NL',{day:'numeric',month:'short'});
+  }
+  function datesInWeek(w) {
+    var ws = weekStart(w), we = new Date(ws); we.setDate(we.getDate()+6);
+    return dates.filter(function(d){
+      var dd = new Date(d.date+'T12:00:00'); return dd>=ws && dd<=we;
     });
   }
 
-  var phaseColors = [
-    {label:'DISCOVERY',    workWeeks:[1,2,3,4,5,6],     bg:'#EEEDFC', text:'#26215C'},
-    {label:'FRAMING',      workWeeks:[7,8,9,10,11],      bg:'#E0F5EE', text:'#04342C'},
-    {label:'IDEATION',     workWeeks:[12,13,14,15,16],   bg:'#FDF0D5', text:'#412402'},
-    {label:'TESTING',      workWeeks:[17,18,19,20],      bg:'#FAEAF1', text:'#4B1528'},
-    {label:'FINALISATION', workWeeks:[21,22,23,24,25],   bg:'#EAF3DE', text:'#173404'},
-  ];
-  function getPhaseColor(workWk) {
-    for (var pi = 0; pi < phaseColors.length; pi++) {
-      if (phaseColors[pi].workWeeks.indexOf(workWk) >= 0) return phaseColors[pi];
+  // ── 1. HEADER ROWS ───────────────────────────────────────────────────────
+  var monthCells = '';
+  var prevMonth = '', monthStart = 1;
+  for (var w=1; w<=TOTAL_WEEKS; w++) {
+    var m = weekStart(w).toLocaleDateString('en-NL',{month:'long'});
+    if (m !== prevMonth) {
+      if (prevMonth) {
+        var span = w - monthStart;
+        monthCells += '<div style="grid-column:span '+span+';text-align:center;font-size:10px;font-weight:600;color:var(--text3);background:var(--surface2);padding:3px 0;border-radius:3px 3px 0 0">'+prevMonth+'</div>';
+      }
+      prevMonth = m; monthStart = w;
     }
-    return null;
+  }
+  monthCells += '<div style="grid-column:span '+(TOTAL_WEEKS-monthStart+1)+';text-align:center;font-size:10px;font-weight:600;color:var(--text3);background:var(--surface2);padding:3px 0;border-radius:3px 3px 0 0">'+prevMonth+'</div>';
+
+  var wkCells = '';
+  for (var w=1; w<=TOTAL_WEEKS; w++) {
+    var isVac = vacWks.indexOf(w)>=0;
+    var isCur = w===currentWeek;
+    var bg = isVac ? 'var(--surface2)' : (isCur ? 'var(--purple-bg)' : 'var(--surface2)');
+    var col = isCur ? 'var(--purple)' : (isVac ? 'var(--text3)' : 'var(--text3)');
+    var fw = isCur ? '700' : '400';
+    wkCells += '<div style="text-align:center;font-size:9px;font-weight:'+fw+';color:'+col+';background:'+bg+';padding:4px 1px;border-right:1px solid var(--border);cursor:pointer;user-select:none" onclick="toggleVacation('+w+')" title="wk '+w+' · '+(isVac?'remove vacation':'mark vacation')+'">'+
+      '<div>'+w+'</div><div style="font-size:8px;opacity:0.6">'+monthAbbr(weekStart(w))+'</div></div>';
   }
 
-  var html = '';
-  var workWkNum = 0;
-  for (var w = 1; w <= totalWeeks; w++) {
-    var isVac = vacWks.indexOf(w) >= 0;
-    if (!isVac) workWkNum++;
-    var pc = isVac ? null : getPhaseColor(workWkNum);
-    var bg = isVac ? 'var(--surface2)' : (pc ? pc.bg : 'var(--surface2)');
-    var textColor = isVac ? 'var(--text3)' : (pc ? pc.text : 'var(--text2)');
-    var isCurrent = w === currentWeek;
-    var ms = msWks[String(w)];
-    var wkDates = datesInWeek(w);
-    var dateStr = getWeekDates(w).start.toLocaleDateString('en-NL', {day:'numeric', month:'short'});
-    var dotHtml = wkDates.map(function(d) {
-      return '<span class="tl-date-dot date-dot-' + d.type + '" style="margin-left:4px" title="' + esc(d.title) + '"></span>';
-    }).join('');
-    var workLabel = isVac ? '' : ('<span style="font-size:10px;opacity:0.45;margin-left:auto;padding-left:8px">wk ' + workWkNum + '</span>');
+  // ── 2. PHASE HEADER ROWS + ACTIVITY ROWS ─────────────────────────────────
+  var phasesSeen = {};
+  var bodyRows = '';
+  var editSvg = '<svg width="11" height="11" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9.5 1.5l2 2-7 7H2.5v-2l7-7z"/></svg>';
+  var delSvg  = '<svg width="11" height="11" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="2" y1="2" x2="11" y2="11"/><line x1="11" y1="2" x2="2" y2="11"/></svg>';
 
-    html += '<div class="tl-week">' +
-      '<div class="tl-week-label">wk ' + w + '</div>' +
-      '<div class="tl-week-bar' + (isCurrent ? ' current' : '') + '" ' +
-      'style="background:' + bg + ';color:' + textColor + ';cursor:pointer" ' +
-      'onclick="toggleVacation(' + w + ')" title="' + (isVac ? 'Remove vacation' : 'Mark as vacation') + '">' +
-      '<span style="font-size:10px;opacity:0.7;margin-right:6px">' + dateStr + '</span>' +
-      (isVac ? '<span style="font-size:11px;font-style:italic">vacation</span>' : '') +
-      (isCurrent ? '<span style="font-size:11px;font-weight:600">← you are here</span>' : '') +
-      dotHtml + workLabel +
-      (ms ? '<span class="tl-badge">' + ms + '</span>' : '') +
-      '</div></div>';
+  function renderPhaseHeader(ph) {
+    var cells = '';
+    for (var w=1; w<=TOTAL_WEEKS; w++) {
+      var active = ph.calWeeks && ph.calWeeks.indexOf(w)>=0;
+      var isVac = vacWks.indexOf(w)>=0;
+      var bg = isVac ? 'var(--surface2)' : (active ? ph.bg : 'var(--surface2)');
+      cells += '<div style="background:'+bg+';border-right:1px solid var(--border);height:100%"></div>';
+    }
+    return '<div style="display:contents">' +
+      '<div style="display:flex;align-items:center;padding:6px 10px;background:'+ph.bg+';border-bottom:1px solid var(--border);position:sticky;left:0;z-index:2">' +
+        '<span style="font-size:10px;font-weight:700;color:'+ph.text+';text-transform:uppercase;letter-spacing:0.07em">'+ph.label+'</span>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:repeat('+TOTAL_WEEKS+',1fr);border-bottom:1px solid var(--border)">' + cells + '</div>' +
+    '</div>';
   }
+
+  // Group activities by phase, preserving order
+  var phaseOrder = phases.map(function(p){return p.id;});
+  var grouped = {};
+  phaseOrder.forEach(function(pid){grouped[pid]=[];});
+  gantt.forEach(function(row){ if(grouped[row.phase]) grouped[row.phase].push(row); });
+
+  // vacation separator rows
+  var vacGroups = [];
+  var cur = null;
+  for (var w=1; w<=TOTAL_WEEKS; w++) {
+    if (vacWks.indexOf(w)>=0) {
+      if (!cur) { cur={start:w,end:w}; }
+      else { cur.end=w; }
+    } else {
+      if (cur) { vacGroups.push(cur); cur=null; }
+    }
+  }
+  if (cur) vacGroups.push(cur);
+
+  // Build combined phase+vac ordered list
+  var orderedSections = [];
+  var vacInserted = {};
+  phaseOrder.forEach(function(pid, pi) {
+    orderedSections.push({type:'phase', id:pid});
+    // check if next phase starts after a vacation gap
+    var ph = phaseById(pid);
+    var maxWk = ph.calWeeks ? Math.max.apply(null, ph.calWeeks) : 0;
+    vacGroups.forEach(function(vg) {
+      if (!vacInserted[vg.start] && vg.start > maxWk) {
+        var nextPh = pi+1 < phaseOrder.length ? phaseById(phaseOrder[pi+1]) : null;
+        var nextMin = nextPh && nextPh.calWeeks ? Math.min.apply(null,nextPh.calWeeks) : 99;
+        if (vg.end < nextMin) {
+          vacInserted[vg.start] = true;
+          orderedSections.push({type:'vacation', start:vg.start, end:vg.end});
+        }
+      }
+    });
+  });
+
+  var allRows = '';
+  orderedSections.forEach(function(sec) {
+    if (sec.type === 'vacation') {
+      var vacCells = '';
+      for (var w=1; w<=TOTAL_WEEKS; w++) {
+        var inVac = w>=sec.start && w<=sec.end;
+        vacCells += '<div style="background:'+(inVac?'var(--surface2)':'var(--bg)')+';border-right:1px solid var(--border);height:100%"></div>';
+      }
+      var ws = weekStart(sec.start), we = weekStart(sec.end);
+      we.setDate(we.getDate()+6);
+      var vacLabel = monthAbbr(ws)+' – '+monthAbbr(we);
+      allRows += '<div style="display:contents">' +
+        '<div style="display:flex;align-items:center;padding:5px 10px;background:var(--surface2);border-bottom:1px solid var(--border);position:sticky;left:0;z-index:2">' +
+          '<span style="font-size:10px;font-style:italic;color:var(--text3)">🏖 vacation &nbsp;·&nbsp; '+esc(vacLabel)+'</span>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:repeat('+TOTAL_WEEKS+',1fr);border-bottom:1px solid var(--border)">' + vacCells + '</div>' +
+      '</div>';
+      return;
+    }
+
+    // phase header
+    var ph = phaseById(sec.id);
+    if (!ph.calWeeks) return;
+    var phCells = '';
+    for (var w=1; w<=TOTAL_WEEKS; w++) {
+      var active = ph.calWeeks.indexOf(w)>=0;
+      var isVac = vacWks.indexOf(w)>=0;
+      var bg = isVac ? 'var(--surface2)' : (active ? ph.bg : 'var(--bg)');
+      phCells += '<div style="background:'+bg+';border-right:1px solid var(--border);height:100%"></div>';
+    }
+    allRows += '<div style="display:contents">' +
+      '<div style="display:flex;align-items:center;gap:6px;padding:7px 10px;background:'+ph.bg+';border-bottom:2px solid '+ph.text.replace('FF','')+'40;position:sticky;left:0;z-index:2">' +
+        '<span style="font-size:11px;font-weight:700;color:'+ph.text+';text-transform:uppercase;letter-spacing:0.07em">'+ph.label+'</span>' +
+        '<button onclick="openGanttRowModal(null,\''+ph.id+'\')" style="margin-left:auto;width:20px;height:20px;display:flex;align-items:center;justify-content:center;background:none;border:1px solid '+ph.text.replace('FF','')+'60;border-radius:3px;cursor:pointer;color:'+ph.text+';opacity:0.7" title="Add activity to '+ph.label+'">'+
+          '<svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg></button>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:repeat('+TOTAL_WEEKS+',1fr);border-bottom:1px solid var(--border)">' + phCells + '</div>' +
+    '</div>';
+
+    // activity rows for this phase
+    (grouped[sec.id]||[]).forEach(function(row) {
+      var rowCells = '';
+      for (var w=1; w<=TOTAL_WEEKS; w++) {
+        var inSpan = w>=row.startWk && w<=row.endWk;
+        var isVac = vacWks.indexOf(w)>=0;
+        var isCurWk = w===currentWeek;
+        var bg = 'var(--bg)';
+        var inner = '';
+        if (isVac) { bg='var(--surface2)'; }
+        else if (inSpan) {
+          bg = ph.bg;
+          if (w===row.startWk && w===row.endWk) inner = '<div style="margin:3px 2px;height:10px;background:'+ph.text.replace('FF','')+'50;border-radius:10px"></div>';
+          else if (w===row.startWk) inner = '<div style="margin:3px 0 3px 3px;height:10px;background:'+ph.text.replace('FF','')+'50;border-radius:10px 0 0 10px"></div>';
+          else if (w===row.endWk) inner = '<div style="margin:3px 3px 3px 0;height:10px;background:'+ph.text.replace('FF','')+'50;border-radius:0 10px 10px 0"></div>';
+          else inner = '<div style="margin:3px 0;height:10px;background:'+ph.text.replace('FF','')+'50"></div>';
+        }
+        rowCells += '<div style="background:'+bg+';border-right:1px solid var(--border)">'+inner+'</div>';
+      }
+      // milestone dots in this row
+      var msHtml = '';
+      var tl2 = loadTimeline();
+      Object.keys(tl2.ms).forEach(function(mwk) {
+        var mw = parseInt(mwk);
+        if (mw>=row.startWk && mw<=row.endWk) msHtml += '';
+      });
+
+      allRows += '<div style="display:contents" class="gantt-row" data-id="'+row.id+'">' +
+        '<div style="display:flex;align-items:center;padding:4px 10px 4px 18px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;left:0;z-index:2;gap:4px;group" class="gantt-row-label">' +
+          '<span style="font-size:11px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(row.label)+'">'+esc(row.label)+'</span>' +
+          '<button onclick="openGanttRowModal(\''+row.id+'\')" class="gantt-act-btn" title="Edit">'+editSvg+'</button>' +
+          '<button onclick="deleteGanttRow(\''+row.id+'\')" class="gantt-act-btn gantt-del-btn" title="Delete">'+delSvg+'</button>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:repeat('+TOTAL_WEEKS+',1fr);border-bottom:1px solid var(--border)">' + rowCells + '</div>' +
+      '</div>';
+    });
+  });
+
+  // milestone dots row
+  var msRow = '';
+  var hasMilestone = Object.keys(msWks).length > 0;
+  if (hasMilestone) {
+    var msCells = '';
+    for (var w=1; w<=TOTAL_WEEKS; w++) {
+      var ms = msWks[String(w)];
+      var isVac = vacWks.indexOf(w)>=0;
+      var isCur = w===currentWeek;
+      var dts = datesInWeek(w);
+      var dotHtml = dts.map(function(d){
+        return '<span class="tl-date-dot date-dot-'+d.type+'" title="'+esc(d.title)+'" style="display:inline-block;margin:0 1px"></span>';
+      }).join('');
+      msCells += '<div style="background:'+(isVac?'var(--surface2)':'var(--surface)')+';border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;min-height:22px;flex-direction:column;padding:2px 0">'+
+        (ms?'<div style="font-size:8px;font-weight:700;color:var(--purple);text-align:center;padding:0 1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%" title="'+esc(ms)+'">●</div>':'') +
+        (dotHtml?'<div style="display:flex;justify-content:center">'+dotHtml+'</div>':'') +
+      '</div>';
+    }
+    allRows += '<div style="display:contents">' +
+      '<div style="display:flex;align-items:center;padding:4px 10px;background:var(--purple-bg);border-bottom:1px solid var(--border);position:sticky;left:0;z-index:2">' +
+        '<span style="font-size:10px;font-weight:600;color:var(--purple-text);text-transform:uppercase;letter-spacing:0.05em">Milestones</span>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:repeat('+TOTAL_WEEKS+',1fr);border-bottom:1px solid var(--border)">' + msCells + '</div>' +
+    '</div>';
+  }
+
+  // ── 3. ASSEMBLE ──────────────────────────────────────────────────────────
+  // Outer container: CSS grid with label col + week cols
+  var LABEL_W = '220px';
+  var WK_W = '34px';
+  var gridStyle = 'display:grid;grid-template-columns:'+LABEL_W+' 1fr;overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);font-size:11px';
+
+  var monthRow = '<div style="display:grid;grid-template-columns:repeat('+TOTAL_WEEKS+',1fr)">' + monthCells + '</div>';
+  var wkRow    = '<div style="display:grid;grid-template-columns:repeat('+TOTAL_WEEKS+',1fr)">' + wkCells + '</div>';
+
+  var headerHtml =
+    '<div style="position:sticky;left:0;z-index:3;background:var(--surface);border-bottom:1px solid var(--border);border-right:1px solid var(--border)">' +
+      '<div style="height:44px;display:flex;align-items:flex-end;padding:0 10px 4px"><span style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em">Activity</span></div>' +
+    '</div>' +
+    '<div style="border-bottom:1px solid var(--border)">' + monthRow + wkRow + '</div>';
+
+  var outerHtml = '<div style="'+gridStyle+'">' + headerHtml + allRows + '</div>';
+
   var el = document.getElementById('full-timeline');
-  if (el) el.innerHTML = html;
+  if (el) el.innerHTML = outerHtml;
 }
+
+// ── GANTT ROW MODAL ───────────────────────────────────────────────────────────
+var editingGanttId = null;
+
+function openGanttRowModal(id, defaultPhase) {
+  editingGanttId = id || null;
+  var phases = loadPhases();
+  var phaseOpts = phases.map(function(p) {
+    return '<option value="'+p.id+'">'+p.label+'</option>';
+  }).join('');
+
+  var labelVal = '', phaseVal = defaultPhase || (phases[0]?phases[0].id:''), startVal = 1, endVal = 1;
+  if (id) {
+    var gantt = loadGantt();
+    var row = gantt.find(function(r){return r.id===id;});
+    if (row) { labelVal=row.label; phaseVal=row.phase; startVal=row.startWk; endVal=row.endWk; }
+  }
+
+  var html = '<h3 style="font-size:15px;font-weight:600;margin-bottom:16px">'+(id?'Edit':'Add')+' activity</h3>' +
+    '<div class="form-group"><label class="form-label">Activity name *</label>' +
+    '<input class="form-input" id="gr-label" value="'+esc(labelVal)+'" placeholder="e.g. Literature review"></div>' +
+    '<div class="form-row">' +
+      '<div class="form-group"><label class="form-label">Phase</label>' +
+      '<select class="form-input" id="gr-phase">'+phaseOpts+'</select></div>' +
+      '<div class="form-group"></div>' +
+    '</div>' +
+    '<div class="form-row">' +
+      '<div class="form-group"><label class="form-label">Start week</label>' +
+      '<input class="form-input" id="gr-start" type="number" min="1" max="25" value="'+startVal+'" style="text-align:center"></div>' +
+      '<div class="form-group"><label class="form-label">End week</label>' +
+      '<input class="form-input" id="gr-end" type="number" min="1" max="25" value="'+endVal+'" style="text-align:center"></div>' +
+    '</div>' +
+    '<div id="gr-task-opt" style="margin-top:4px;padding:12px;background:var(--surface2);border-radius:var(--radius-sm)">' +
+      '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">' +
+        '<input type="checkbox" id="gr-create-task" '+(id?'':'checked')+' style="width:15px;height:15px;accent-color:var(--purple)">' +
+        (id ? 'Also update linked task title' : 'Also create a task for this activity') +
+      '</label>' +
+    '</div>' +
+    '<div class="modal-actions">' +
+      (id ? '<button class="btn-cancel" style="color:var(--red-text);background:var(--red-bg);border-color:var(--red-bg)" onclick="deleteGanttRow(\''+id+'\');closeGanttModal()">Delete</button>' : '') +
+      '<button class="btn-cancel" onclick="closeGanttModal()">Cancel</button>' +
+      '<button class="btn-save" onclick="saveGanttRow()">Save</button>' +
+    '</div>';
+
+  var overlay = document.getElementById('gantt-row-overlay');
+  overlay.innerHTML = '<div class="modal" style="max-width:480px">'+html+'</div>';
+  overlay.classList.add('open');
+  document.getElementById('gr-phase').value = phaseVal;
+  setTimeout(function(){document.getElementById('gr-label').focus();},50);
+}
+
+function closeGanttModal() {
+  document.getElementById('gantt-row-overlay').classList.remove('open');
+  editingGanttId = null;
+}
+
+function saveGanttRow() {
+  var label = document.getElementById('gr-label').value.trim();
+  if (!label) { document.getElementById('gr-label').focus(); return; }
+  var phase   = document.getElementById('gr-phase').value;
+  var startWk = parseInt(document.getElementById('gr-start').value) || 1;
+  var endWk   = parseInt(document.getElementById('gr-end').value) || startWk;
+  if (endWk < startWk) endWk = startWk;
+  var createTask = document.getElementById('gr-create-task').checked;
+
+  var gantt = loadGantt();
+  if (editingGanttId) {
+    var row = gantt.find(function(r){return r.id===editingGanttId;});
+    if (row) { row.label=label; row.phase=phase; row.startWk=startWk; row.endWk=endWk; }
+    if (createTask) {
+      var t = state.tasks.find(function(x){return x.ganttId===editingGanttId;});
+      if (t) { t.title=label; t.phase=phase; save(); }
+    }
+  } else {
+    var newId = 'g_'+Date.now();
+    gantt.push({id:newId, phase:phase, label:label, startWk:startWk, endWk:endWk});
+    if (createTask) {
+      var newTask = {id:'task_'+Date.now(), title:label, desc:'', phase:phase,
+        priority:'normal', topic:'', due:'', done:false, subtasks:[], ganttId:newId};
+      state.tasks.push(newTask);
+      save();
+    }
+  }
+  saveGantt(gantt);
+  closeGanttModal();
+  renderFullTimeline();
+}
+
+function deleteGanttRow(id) {
+  if (!confirm('Remove this activity from the Gantt?')) return;
+  var gantt = loadGantt().filter(function(r){return r.id!==id;});
+  saveGantt(gantt);
+  closeGanttModal();
+  renderFullTimeline();
+}
+
 
 function removeMsRow(btn) {
   btn.parentNode.parentNode.removeChild(btn.parentNode);
@@ -1501,6 +1827,10 @@ document.addEventListener('keydown', function(e) {
     closeDocModal();
     var mso = document.getElementById('ms-modal-overlay');
     if (mso) mso.classList.remove('open');
+    var pmo = document.getElementById('phase-modal-overlay');
+    if (pmo) pmo.classList.remove('open');
+    var gmo = document.getElementById('gantt-row-overlay');
+    if (gmo) gmo.classList.remove('open');
   }
 });
 
@@ -1508,6 +1838,110 @@ document.addEventListener('keydown', function(e) {
 load();
 renderHome();
 
+
+// ── PHASE EDITOR ─────────────────────────────────────────────────────────────
+var PHASE_COLORS = [
+  {bg:'#EEEDFC', text:'#26215C', label:'purple'},
+  {bg:'#E0F5EE', text:'#04342C', label:'teal'},
+  {bg:'#FDF0D5', text:'#412402', label:'amber'},
+  {bg:'#FAEAF1', text:'#4B1528', label:'pink'},
+  {bg:'#FDE8D0', text:'#5C2800', label:'orange'},
+  {bg:'#EAF3DE', text:'#173404', label:'green'},
+  {bg:'#F0ECFF', text:'#2D1F6E', label:'indigo'},
+  {bg:'#FFE8E8', text:'#5C1A1A', label:'red'},
+];
+
+function openPhaseEditor() {
+  var phases = loadPhases();
+  var delSvg = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg>';
+  var rows = '';
+  phases.forEach(function(ph, idx) {
+    var weeksStr = ph.calWeeks ? ph.calWeeks.join(',') : '';
+    var colorOpts = PHASE_COLORS.map(function(c) {
+      return '<option value="' + c.bg + '|' + c.text + '"' +
+        (ph.bg === c.bg ? ' selected' : '') +
+        ' style="background:' + c.bg + '">' + c.label + '</option>';
+    }).join('');
+    rows += '<div style="display:grid;grid-template-columns:140px 1fr 70px 28px;gap:8px;align-items:center;margin-bottom:8px">' +
+      '<input class="form-input ph-label" value="' + esc(ph.label) + '" style="font-size:12px;padding:7px 10px">' +
+      '<input class="form-input ph-weeks" value="' + weeksStr + '" placeholder="e.g. 1,2,3,4" style="font-size:12px;padding:7px 10px" title="Calendar weeks separated by commas">' +
+      '<select class="form-input ph-color" style="font-size:11px;padding:7px 6px;background:' + ph.bg + '">' + colorOpts + '</select>' +
+      '<button onclick="removePhaseRow(this)" style="width:28px;height:28px;background:none;border:none;cursor:pointer;color:var(--text3);border-radius:5px">' + delSvg + '</button>' +
+      '</div>';
+  });
+  document.getElementById('phase-editor-body').innerHTML = rows;
+  document.getElementById('phase-modal-overlay').classList.add('open');
+}
+
+function addPhaseRow() {
+  var div = document.createElement('div');
+  div.style.cssText = 'display:grid;grid-template-columns:140px 1fr 70px 28px;gap:8px;align-items:center;margin-bottom:8px';
+  var delSvg = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="1" y1="1" x2="11" y2="11"/><line x1="11" y1="1" x2="1" y2="11"/></svg>';
+  var colorOpts = PHASE_COLORS.map(function(c) {
+    return '<option value="' + c.bg + '|' + c.text + '">' + c.label + '</option>';
+  }).join('');
+  div.innerHTML = '<input class="form-input ph-label" placeholder="Phase name" style="font-size:12px;padding:7px 10px">' +
+    '<input class="form-input ph-weeks" placeholder="e.g. 1,2,3" style="font-size:12px;padding:7px 10px">' +
+    '<select class="form-input ph-color" style="font-size:11px;padding:7px 6px">' + colorOpts + '</select>' +
+    '<button onclick="removePhaseRow(this)" style="width:28px;height:28px;background:none;border:none;cursor:pointer;color:var(--text3);border-radius:5px">' + delSvg + '</button>';
+  document.getElementById('phase-editor-body').appendChild(div);
+}
+
+function removePhaseRow(btn) {
+  btn.parentNode.parentNode.removeChild(btn.parentNode);
+}
+
+function savePhaseEditor() {
+  var rows = document.querySelectorAll('#phase-editor-body > div');
+  var newPhases = [];
+  for (var i = 0; i < rows.length; i++) {
+    var label = rows[i].querySelector('.ph-label').value.trim().toUpperCase();
+    var weeksStr = rows[i].querySelector('.ph-weeks').value.trim();
+    var colorVal = rows[i].querySelector('.ph-color').value;
+    var colorParts = colorVal.split('|');
+    var bg = colorParts[0] || '#EEEDFC';
+    var text = colorParts[1] || '#26215C';
+    if (!label || !weeksStr) continue;
+    var calWeeks = weeksStr.split(',').map(function(s) { return parseInt(s.trim()); }).filter(function(n) { return !isNaN(n) && n >= 1; });
+    if (calWeeks.length === 0) continue;
+    // derive an id from label
+    var id = label.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    newPhases.push({id: id, label: label, calWeeks: calWeeks, bg: bg, text: text, desc: ''});
+  }
+  if (newPhases.length === 0) { alert('Please add at least one phase.'); return; }
+  savePhases(newPhases);
+  // Update global PHASES array for tasks
+  PHASES = [{id:'preparation', label:'PREPARATION', desc:'Administrative setup'}].concat(newPhases);
+  document.getElementById('phase-modal-overlay').classList.remove('open');
+  renderFullTimeline();
+  renderHomeTimeline();
+  renderHome();
+}
 </script>
+
+<!-- PHASE EDITOR MODAL -->
+<div class="modal-overlay" id="phase-modal-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" style="max-width:560px">
+    <h3>Edit weeks &amp; phases</h3>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:16px;line-height:1.5">Define which calendar weeks belong to each phase. Separate multiple weeks with commas (e.g. <code>1,2,3,4,5,6</code>). Changes update the home and planning pages immediately.</p>
+    <div style="display:grid;grid-template-columns:140px 1fr 70px 28px;gap:8px;margin-bottom:6px;align-items:center">
+      <div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Phase name</div>
+      <div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Calendar weeks (comma separated)</div>
+      <div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Colour</div>
+      <div></div>
+    </div>
+    <div id="phase-editor-body"></div>
+    <button onclick="addPhaseRow()" style="margin-top:10px;width:100%;padding:7px;font-size:12px;background:none;border:1px dashed var(--border2);border-radius:var(--radius-sm);color:var(--text2);cursor:pointer;font-family:inherit">+ Add phase</button>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="document.getElementById('phase-modal-overlay').classList.remove('open')">Cancel</button>
+      <button class="btn-save" onclick="savePhaseEditor()">Save &amp; update</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- GANTT ROW MODAL -->
+<div class="modal-overlay" id="gantt-row-overlay" onclick="if(event.target===this)closeGanttModal()"></div>
+
 </body>
 </html>
