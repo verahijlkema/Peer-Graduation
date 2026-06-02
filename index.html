@@ -378,6 +378,17 @@
   .gantt-row-label:hover .gantt-act-btn { opacity:1; }
   .gantt-act-btn:hover { background:var(--surface2);color:var(--text); }
   .gantt-del-btn:hover { background:var(--red-bg);color:var(--red-text); }
+  /* ... previous styles ... */
+  .gantt-del-btn:hover { background:var(--red-bg);color:var(--red-text); }
+
+  /* ── DRAG AND DROP UTILITIES ── */
+  .task-card[draggable="true"] {
+    cursor: move;
+  }
+  .task-card.dragging {
+    opacity: 0.3;
+    border: 1px dashed var(--purple);
+  }
 </style>
 </head>
 <body>
@@ -1064,7 +1075,7 @@ function renderTasks() {
         var editSvg = '<svg width="12" height="12" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9.5 1.5l2 2-7 7H2.5v-2l7-7z"/></svg>';
         var delSvg = '<svg width="12" height="12" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><polyline points="2,3.5 11,3.5"/><path d="M4.5 3.5V2.5h4v1"/><path d="M5 3.5v6M8 3.5v6"/><rect x="3" y="3.5" width="7" height="7.5" rx="1"/></svg>';
 
-        html += '<div class="' + cardCls + '" style="' + leftBorder + '">' +
+        html += '<div class="' + cardCls + '" style="' + leftBorder + '" draggable="true" data-id="' + t.id + '" ondragstart="handleDragStart(event)" ondragover="handleDragOver(event)" ondragend="handleDragEnd(event)">' +
           '<div class="task-main">' +
           '<div class="tc-cb" onclick="toggleTaskDone(\'' + t.id + '\');event.stopPropagation()"></div>' +
           '<div class="tc-body" onclick="toggleOpen(\'' + t.id + '\')" style="cursor:pointer;min-width:0">' +
@@ -1881,13 +1892,57 @@ function savePhaseEditor() {
     newPhases.push({id: id, label: label, calWeeks: calWeeks, bg: bg, text: text, desc: ''});
   }
   if (newPhases.length === 0) { alert('Please add at least one phase.'); return; }
+// ... right below your savePhaseEditor() function ...
   savePhases(newPhases);
-  // Update global PHASES array for tasks
   PHASES = [{id:'preparation', label:'PREPARATION', desc:'Administrative setup'}].concat(newPhases);
   document.getElementById('phase-modal-overlay').classList.remove('open');
   renderFullTimeline();
   renderHomeTimeline();
   renderHome();
+}
+
+// ── DRAG AND DROP TASK REORDERING ──────────────────────────────────────────
+let draggedElementId = null;
+
+function handleDragStart(e) {
+  const card = e.target.closest('.task-card');
+  if (!card) return;
+  draggedElementId = card.getAttribute('data-id');
+  card.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  const overCard = e.target.closest('.task-card');
+  if (!overCard) return;
+  
+  const targetId = overCard.getAttribute('data-id');
+  if (targetId === draggedElementId) return;
+
+  const draggedIndex = state.tasks.findIndex(t => t.id === draggedElementId);
+  const targetIndex = state.tasks.findIndex(t => t.id === targetId);
+
+  if (draggedIndex !== -1 && targetIndex !== -1) {
+    if (state.tasks[draggedIndex].phase === state.tasks[targetIndex].phase) {
+      const [removed] = state.tasks.splice(draggedIndex, 1);
+      state.tasks.splice(targetIndex, 0, removed);
+      save();
+      renderTasks();
+    }
+  }
+}
+
+function handleDragEnd(e) {
+  const card = e.target.closest('.task-card');
+  if (card) card.classList.remove('dragging');
+  draggedElementId = null;
+  renderHome(); 
+}
+</script>
+
+<div class="modal-overlay" id="phase-modal-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+... the rest of your HTML blocks stay down here ...
 }
 </script>
 
