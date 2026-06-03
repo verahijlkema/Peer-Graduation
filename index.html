@@ -476,7 +476,6 @@
         <div id="full-timeline"></div>
       </div>
     </div>
-    <div>
   </div>
 </div>
 
@@ -651,50 +650,56 @@
 <script>
 const START_DATE = new Date('2026-06-01T00:00:00');
 
-// DEFAULT_PHASES maps phase id → calendar week ranges (matching your planning image exactly)
-// Calendar wk 7 = vacation, wk 14-16 = vacation
-// Discovery: cal wk 1-6, Definition: cal wk 8-10, Ideation: cal wk 11-13
-// Prototyping: cal wk 17-19, Validation: cal wk 20-21, Finalizing: cal wk 22-24
+// DEFAULT_PHASES maps phase id → calendar week ranges (V2 planning, wk1 = 1 Jun 2026)
+// vacation wk7 (13–19 Jul), vacation wk14–16 (31 Aug–20 Sep)
 const DEFAULT_PHASES = [
-  {id:'discovery',   label:'DISCOVER',    calWeeks:[1,2,3,4,5,6],      bg:'#EEEDFC', text:'#26215C', desc:'Map the domain: understand perimenopause, the NL care system, existing tools, and what makes patient-reported data clinically meaningful.'},
-  {id:'framing',     label:'DEFINE',      calWeeks:[8,9,10],            bg:'#E0F5EE', text:'#04342C', desc:'Synthesise research into design principles. Frame the double-sided design challenge.'},
-  {id:'ideation',    label:'DEVELOP',     calWeeks:[11,12,13],          bg:'#FDF0D5', text:'#412402', desc:'Generate and evaluate design directions. Visual language, IA, co-creation.'},
-  {id:'prototype',   label:'DELIVER',     calWeeks:[17,18,19,20,21],    bg:'#FAEAF1', text:'#4B1528', desc:'Build and test the semi-functional prototype with real users on both sides of the interface.'},
-  {id:'finalisation',label:'FINALISE',    calWeeks:[22,23,24],          bg:'#EAF3DE', text:'#173404', desc:'Write up, refine, prepare for Green Light and public graduation presentation.'},
+  {id:'discovery',   label:'DISCOVER',    calWeeks:[2,3,4,5,6,7],       bg:'#EEEDFC', text:'#26215C', desc:'Map the domain: understand perimenopause, the NL care system, existing tools, and what makes patient-reported data clinically meaningful.'},
+  {id:'framing',     label:'DEFINE',      calWeeks:[8,9,10],             bg:'#E0F5EE', text:'#04342C', desc:'Synthesise research into design principles. Frame the double-sided design challenge.'},
+  {id:'ideation',    label:'DEVELOP',     calWeeks:[10,11,12,13],        bg:'#FDF0D5', text:'#412402', desc:'Generate and evaluate design directions. Visual language, IA, co-creation.'},
+  {id:'prototype',   label:'DELIVER',     calWeeks:[17,18,19,20,21],     bg:'#FAEAF1', text:'#4B1528', desc:'Build and test the semi-functional prototype with real users on both sides of the interface.'},
+  {id:'finalisation',label:'FINALISE',    calWeeks:[22,23,24,25],        bg:'#EAF3DE', text:'#173404', desc:'Write up, refine, prepare for Green Light and public graduation presentation.'},
 ];
 
-// ── Gantt activities (the actual planning rows) ───────────────────────────────
+// ── Gantt activities (V2 planning rows, wk1 = 1 Jun 2026) ───────────────────
 const DEFAULT_GANTT = [
-  // phase_id, label, startWk, endWk
-  {id:'g1',  phase:'discovery',   label:'Literature: perimenopause biology & NHG-standaard',           startWk:1,  endWk:3},
-  {id:'g2',  phase:'discovery',   label:'Literature: NL healthcare system & care-seeking behaviour',    startWk:2,  endWk:4},
-  {id:'g3',  phase:'discovery',   label:'Literature: PROMs/CATs, health data quality, feminist AI',     startWk:3,  endWk:5},
-  {id:'g4',  phase:'discovery',   label:'Literature: design precedents & double-sided interfaces',      startWk:4,  endWk:6},
-  {id:'g5',  phase:'discovery',   label:'Stakeholder mapping + Ksyos access setup',                     startWk:1,  endWk:2},
-  {id:'g6',  phase:'discovery',   label:'Submit HREC ethics application',                               startWk:1,  endWk:1},
-  {id:'g7',  phase:'discovery',   label:'Contextual interviews: clinicians (GP, overgangsconsulente)',  startWk:3,  endWk:5},
-  {id:'g8',  phase:'discovery',   label:'Contextual interviews: patients (4–6 women via Ksyos)',        startWk:4,  endWk:6},
-  {id:'g9',  phase:'discovery',   label:'Patient journey map — draft',                                  startWk:5,  endWk:6},
-  {id:'g10', phase:'framing',     label:'Synthesis: cluster insights from interviews + literature',     startWk:8,  endWk:8},
-  {id:'g11', phase:'framing',     label:'Complete patient journey map (patient + clinician view)',      startWk:8,  endWk:9},
-  {id:'g12', phase:'framing',     label:'Define design principles (health literacy + data quality)',    startWk:9,  endWk:9},
-  {id:'g13', phase:'framing',     label:'Frame the double-sided design objective/challenge',            startWk:9,  endWk:10},
-  {id:'g14', phase:'framing',     label:'Define evaluation criteria',                                   startWk:10, endWk:10},
-  {id:'g15', phase:'ideation',    label:'Ideation: concept generation (multiple directions)',           startWk:11, endWk:11},
-  {id:'g16', phase:'ideation',    label:'Brainstorm & co-creation session with Ksyos or patients',     startWk:11, endWk:12},
-  {id:'g17', phase:'ideation',    label:'Evaluate concepts against criteria',                           startWk:12, endWk:12},
-  {id:'g18', phase:'ideation',    label:'Select direction: develop 2–3 stronger concepts',             startWk:12, endWk:13},
-  {id:'g19', phase:'ideation',    label:'Information architecture design (patient + clinician side)',   startWk:13, endWk:13},
-  {id:'g20', phase:'ideation',    label:'Visual language exploration',                                  startWk:13, endWk:13},
-  {id:'g21', phase:'prototype',   label:'Prototype build: patient side (core flows, key screens)',      startWk:17, endWk:18},
-  {id:'g22', phase:'prototype',   label:'Prototype build: clinician side (data view, actionability)',   startWk:17, endWk:18},
-  {id:'g23', phase:'prototype',   label:'User testing round 1: patients',                               startWk:18, endWk:19},
-  {id:'g24', phase:'prototype',   label:'User testing round 1: clinicians',                             startWk:18, endWk:19},
-  {id:'g25', phase:'prototype',   label:'Iterate on prototype based on test results',                   startWk:19, endWk:20},
-  {id:'g26', phase:'prototype',   label:'User testing round 2 (targeted, specific pain points)',        startWk:20, endWk:21},
-  {id:'g27', phase:'finalisation',label:'Final report writing',                                         startWk:22, endWk:23},
-  {id:'g28', phase:'finalisation',label:'Turnitin check',                                               startWk:23, endWk:23},
-  {id:'g29', phase:'finalisation',label:'Presentation preparation + practice',                          startWk:23, endWk:24},
+  // DISCOVER wk2–7
+  {id:'g1',  phase:'discovery',   label:'Research Perimenopause biology',                               startWk:2,  endWk:3},
+  {id:'g2',  phase:'discovery',   label:'Research NL healthcare system',                                startWk:2,  endWk:3},
+  {id:'g3',  phase:'discovery',   label:'Research Behavioural psychology',                              startWk:2,  endWk:3},
+  {id:'g4',  phase:'discovery',   label:'Research (soft) data collection methods (PROMs/CATs)',         startWk:2,  endWk:4},
+  {id:'g5',  phase:'discovery',   label:'Research (feminist) AI theory & application uses',             startWk:2,  endWk:5},
+  {id:'g6',  phase:'discovery',   label:'Research existing interfaces (double-sided/tracking)',          startWk:2,  endWk:6},
+  {id:'g7',  phase:'discovery',   label:'Interview clinicians (GP, overgangsconsulente, endo, gyn…)',   startWk:3,  endWk:6},
+  {id:'g8',  phase:'discovery',   label:'Interview patients (min 5)',                                   startWk:3,  endWk:6},
+  {id:'g9',  phase:'discovery',   label:'Interview other relevant experts',                             startWk:3,  endWk:7},
+  {id:'g10', phase:'discovery',   label:'Patient journey map',                                          startWk:2,  endWk:6},
+  {id:'g11', phase:'discovery',   label:'Stakeholder map',                                              startWk:2,  endWk:7},
+  // DEFINE wk8–10
+  {id:'g12', phase:'framing',     label:'Synthesis: cluster insights from interviews & literature',     startWk:8,  endWk:8},
+  {id:'g13', phase:'framing',     label:'Analyse & complete patient journey (innovation space)',        startWk:8,  endWk:9},
+  {id:'g14', phase:'framing',     label:'Define design principles',                                     startWk:9,  endWk:9},
+  {id:'g15', phase:'framing',     label:'Frame design objective',                                       startWk:9,  endWk:10},
+  {id:'g16', phase:'framing',     label:'Define evaluation criteria',                                   startWk:10, endWk:10},
+  // DEVELOP wk10–13
+  {id:'g17', phase:'ideation',    label:'Ideation & Concept generation',                               startWk:10, endWk:11},
+  {id:'g18', phase:'ideation',    label:'Brainstorm & co-creation sessions',                            startWk:10, endWk:11},
+  {id:'g19', phase:'ideation',    label:'Evaluate concepts against criteria',                           startWk:11, endWk:11},
+  {id:'g20', phase:'ideation',    label:'Choose strongest 2–3 concept(s)',                              startWk:11, endWk:11},
+  {id:'g21', phase:'ideation',    label:'Design information architecture (patient + clinician side)',   startWk:12, endWk:12},
+  {id:'g22', phase:'ideation',    label:'Graphic design & data visualisation',                          startWk:12, endWk:13},
+  {id:'g23', phase:'ideation',    label:'Present final concept(s) to client',                           startWk:13, endWk:13},
+  {id:'g24', phase:'ideation',    label:'Choose final concept',                                         startWk:13, endWk:13},
+  // DELIVER wk17–21
+  {id:'g25', phase:'prototype',   label:'Build patient side (core flows, key screens)',                 startWk:17, endWk:18},
+  {id:'g26', phase:'prototype',   label:'Build clinician side (data view, actionability)',              startWk:17, endWk:18},
+  {id:'g27', phase:'prototype',   label:'User testing patients',                                        startWk:18, endWk:19},
+  {id:'g28', phase:'prototype',   label:'User testing clinicians',                                      startWk:18, endWk:19},
+  {id:'g29', phase:'prototype',   label:'Iterate on prototype based on test results',                   startWk:19, endWk:20},
+  {id:'g30', phase:'prototype',   label:'Final User testing (targeted, specific pain points)',           startWk:20, endWk:21},
+  // FINALISE wk22–25
+  {id:'g31', phase:'finalisation',label:'Final report writing',                                         startWk:22, endWk:23},
+  {id:'g32', phase:'finalisation',label:'Turnitin check',                                               startWk:23, endWk:23},
+  {id:'g33', phase:'finalisation',label:'Presentation preparation + practice',                          startWk:24, endWk:24},
 ];
 
 function loadGantt() {
@@ -731,11 +736,11 @@ const DEFAULT_TASKS = [
 ];
 
 const DEFAULT_DATES = [
-  {id:'dd1',title:'Kick-off meeting',date:'2026-06-01',type:'milestone',notes:'Full supervisory team: Richard, Sara, Isabella'},
+  {id:'dd1',title:'Kick-off meeting',date:'2026-06-09',type:'milestone',notes:'Full supervisory team: Richard, Sara, Isabella'},
   {id:'dd2',title:'HREC application deadline',date:'2026-06-08',type:'deadline',notes:'Submit as early as possible — takes 3+ weeks to process'},
   {id:'dd3',title:'Vacation',date:'2026-07-13',type:'vacation',notes:'13–19 July 2026'},
   {id:'dd4',title:'Midterm evaluation',date:'2026-08-03',type:'milestone',notes:'Self-evaluation form to supervisors 3 days before'},
-  {id:'dd5',title:'Vacation',date:'2026-08-29',type:'vacation',notes:'29 Aug – 20 Sept 2026'},
+  {id:'dd5',title:'Vacation',date:'2026-08-31',type:'vacation',notes:'31 Aug – 20 Sep 2026'},
   {id:'dd6',title:'Final study progress check',date:'2026-10-05',type:'deadline',notes:'All grades must be registered before Green Light'},
   {id:'dd7',title:'Green light meeting',date:'2026-10-19',type:'milestone',notes:'Submit 80% draft report + Turnitin check'},
   {id:'dd8',title:'Graduation / Presentation',date:'2026-11-16',type:'milestone',notes:'Public presentation at IDE Faculty'},
@@ -780,7 +785,7 @@ function saveDocs(docs) { localStorage.setItem('vera_docs_v1', JSON.stringify(do
 
 function loadTimeline() {
   var defaultVac = [7,14,15,16];
-  var defaultMs = {'1':'Kick-off','10':'Midterm','19':'Final study progress','21':'Green light','25':'Graduation'};
+  var defaultMs = {'2':'Kick-off','10':'Midterm','19':'Progress Check','21':'Green Light','25':'Presentation'};
   try {
     var sv = localStorage.getItem('vera_vac_v1');
     if (sv) defaultVac = JSON.parse(sv);
@@ -1086,8 +1091,8 @@ function renderTasks() {
           dueBadge +
           (subtaskTotal > 0 ? '<span class="tc-count">' + subtaskDone + '/' + subtaskTotal + '</span>' : '') +
           '<span class="tc-priority-dot" style="background:' + dotColor + '"></span>' +
-          '<button class="tc-icon-btn" onclick="editTask(\'' + t.id + '\')" title="Edit">' + editSvg + '</button>' +
-          '<button class="tc-icon-btn tc-icon-delete" onclick="deleteTask(\'' + t.id + '\')" title="Delete">' + delSvg + '</button>' +
+          '<button class="tc-icon-btn" onclick="editTask(\'' + t.id + '\');event.stopPropagation()" title="Edit">' + editSvg + '</button>' +
+          '<button class="tc-icon-btn tc-icon-delete" onclick="deleteTask(\'' + t.id + '\');event.stopPropagation()" title="Delete">' + delSvg + '</button>' +
           '<div class="' + expandCls + '" onclick="toggleOpen(\'' + t.id + '\')">›</div>' +
           '</div>' +
           '</div>' +
@@ -1357,92 +1362,132 @@ function renderFullTimeline() {
     });
   });
 
-  var allRows = '';
+  // ── milestone rows: inline between phases ───────────────────────────────
+  // Build sorted list of milestones with their week numbers
+  var milestoneList = Object.keys(msWks).map(function(w) {
+    return {week: parseInt(w), label: msWks[w]};
+  }).sort(function(a,b){return a.week - b.week;});
+
+  function renderMilestoneRow(ms) {
+    var cells = '';
+    for (var w=1; w<=TOTAL_WEEKS; w++) {
+      var isVac = vacWks.indexOf(w)>=0;
+      var isMsWk = w === ms.week;
+      cells += '<div style="background:'+(isVac?'var(--surface2)':'var(--purple-bg)')+';border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;min-height:24px">' +
+        (isMsWk ? '<div style="font-size:9px;font-weight:700;color:var(--purple);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;padding:0 2px" title="'+esc(ms.label)+'">●</div>' : '') +
+      '</div>';
+    }
+    return '<div style="display:contents">' +
+      '<div style="display:flex;align-items:center;padding:4px 10px;background:var(--purple-bg);border-bottom:1px solid var(--border);position:sticky;left:0;z-index:2;gap:6px">' +
+        '<span style="font-size:9px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:0.08em">● ' + esc(ms.label) + '</span>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:repeat('+TOTAL_WEEKS+',1fr);border-bottom:1px solid var(--border)">' + cells + '</div>' +
+    '</div>';
+  }
+
+  // Insert milestone rows at the right place in allRows
+  // We need to rebuild allRows with milestones woven in
+  var allRowsWithMs = '';
+  // Track which milestones we've rendered
+  var msRendered = {};
+
+  // Helper: render any milestones that fall at or before a given week
+  function flushMilestonesBefore(maxWk) {
+    var out = '';
+    milestoneList.forEach(function(ms) {
+      if (!msRendered[ms.week] && ms.week <= maxWk) {
+        out += renderMilestoneRow(ms);
+        msRendered[ms.week] = true;
+      }
+    });
+    return out;
+  }
+
+  // Rebuild: for each section, insert milestones that fall just before it starts
   orderedSections.forEach(function(sec) {
+    if (sec.type === 'vacation') {
+      // Insert milestones up to vacation start
+      allRowsWithMs += flushMilestonesBefore(sec.start - 1);
+      // Vacation row (already in allRows — we need to re-render it here)
+      var vCells = '';
+      for (var w=1; w<=TOTAL_WEEKS; w++) {
+        var inVac = w>=sec.start && w<=sec.end;
+        vCells += '<div style="background:'+(inVac?'var(--surface2)':'var(--bg)')+';border-right:1px solid var(--border);height:100%"></div>';
+      }
+      allRowsWithMs += '<div style="display:contents">' +
+        '<div style="display:flex;align-items:center;padding:6px 10px;background:var(--surface2);border-bottom:1px solid var(--border);position:sticky;left:0;z-index:2">' +
+          '<span style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;font-style:italic">vacation</span>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:repeat('+TOTAL_WEEKS+',1fr);border-bottom:1px solid var(--border)">' + vCells + '</div>' +
+      '</div>';
+      return;
+    }
 
-
-    // phase header
+    // It's a phase section
     var ph = phaseById(sec.id);
     if (!ph.calWeeks) return;
+
+    // Insert milestones before this phase starts
+    var phMinWk = Math.min.apply(null, ph.calWeeks);
+    allRowsWithMs += flushMilestonesBefore(phMinWk - 1);
+
+    // Phase header
     var phCells = '';
     for (var w=1; w<=TOTAL_WEEKS; w++) {
       var active = ph.calWeeks.indexOf(w)>=0;
-      var isVac = vacWks.indexOf(w)>=0;
-      var bg = isVac ? 'var(--surface2)' : (active ? ph.bg : 'var(--bg)');
+      var isVacW = vacWks.indexOf(w)>=0;
+      var bg = isVacW ? 'var(--surface2)' : (active ? ph.bg : 'var(--bg)');
       phCells += '<div style="background:'+bg+';border-right:1px solid var(--border);height:100%"></div>';
     }
-    allRows += '<div style="display:contents">' +
+    allRowsWithMs += '<div style="display:contents">' +
       '<div style="display:flex;align-items:center;gap:6px;padding:7px 10px;background:'+ph.bg+';border-bottom:2px solid '+ph.text.replace('FF','')+'40;position:sticky;left:0;z-index:2">' +
         '<span style="font-size:11px;font-weight:700;color:'+ph.text+';text-transform:uppercase;letter-spacing:0.07em">'+ph.label+'</span>' +
-        '<button onclick="openGanttRowModal(null,\''+ph.id+'\')" style="margin-left:auto;width:20px;height:20px;display:flex;align-items:center;justify-content:center;background:none;border:1px solid '+ph.text.replace('FF','')+'60;border-radius:3px;cursor:pointer;color:'+ph.text+';opacity:0.7" title="Add activity to '+ph.label+'">'+
+        '<button onclick="openGanttRowModal(null,\''+ph.id+'\')" style="margin-left:auto;width:20px;height:20px;display:flex;align-items:center;justify-content:center;background:none;border:1px solid '+ph.text.replace('FF','')+'60;border-radius:3px;cursor:pointer;color:'+ph.text+';opacity:0.7" title="Add activity to '+ph.label+'">' +
           '<svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg></button>' +
       '</div>' +
       '<div style="display:grid;grid-template-columns:repeat('+TOTAL_WEEKS+',1fr);border-bottom:1px solid var(--border)">' + phCells + '</div>' +
     '</div>';
 
-    // activity rows for this phase
+    // Activity rows for this phase
     (grouped[sec.id]||[]).forEach(function(row) {
       var rowCells = '';
       for (var w=1; w<=TOTAL_WEEKS; w++) {
         var inSpan = w>=row.startWk && w<=row.endWk;
-        var isVac = vacWks.indexOf(w)>=0;
-        var isCurWk = w===currentWeek;
-        var bg = 'var(--bg)';
+        var isVacW = vacWks.indexOf(w)>=0;
+        var bg2 = 'var(--bg)';
         var inner = '';
-        if (isVac) { bg='var(--surface2)'; }
+        if (isVacW) { bg2='var(--surface2)'; }
         else if (inSpan) {
-          bg = ph.bg;
+          bg2 = ph.bg;
           if (w===row.startWk && w===row.endWk) inner = '<div style="margin:3px 2px;height:10px;background:'+ph.text.replace('FF','')+'50;border-radius:10px"></div>';
           else if (w===row.startWk) inner = '<div style="margin:3px 0 3px 3px;height:10px;background:'+ph.text.replace('FF','')+'50;border-radius:10px 0 0 10px"></div>';
           else if (w===row.endWk) inner = '<div style="margin:3px 3px 3px 0;height:10px;background:'+ph.text.replace('FF','')+'50;border-radius:0 10px 10px 0"></div>';
           else inner = '<div style="margin:3px 0;height:10px;background:'+ph.text.replace('FF','')+'50"></div>';
         }
-        rowCells += '<div style="background:'+bg+';border-right:1px solid var(--border)">'+inner+'</div>';
+        rowCells += '<div style="background:'+bg2+';border-right:1px solid var(--border)">'+inner+'</div>';
       }
-      // milestone dots in this row
-      var msHtml = '';
-      var tl2 = loadTimeline();
-      Object.keys(tl2.ms).forEach(function(mwk) {
-        var mw = parseInt(mwk);
-        if (mw>=row.startWk && mw<=row.endWk) msHtml += '';
-      });
-
-      allRows += '<div style="display:contents" class="gantt-row" data-id="'+row.id+'">' +
-        '<div style="display:flex;align-items:center;padding:4px 10px 4px 18px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;left:0;z-index:2;gap:4px;group" class="gantt-row-label">' +
+      allRowsWithMs += '<div style="display:contents" class="gantt-row" data-id="'+row.id+'">' +
+        '<div style="display:flex;align-items:center;padding:4px 10px 4px 18px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;left:0;z-index:2;gap:4px" class="gantt-row-label">' +
           '<span style="font-size:11px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(row.label)+'">'+esc(row.label)+'</span>' +
           '<button onclick="openGanttRowModal(\''+row.id+'\')" class="gantt-act-btn" title="Edit">'+editSvg+'</button>' +
           '<button onclick="deleteGanttRow(\''+row.id+'\')" class="gantt-act-btn gantt-del-btn" title="Delete">'+delSvg+'</button>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:repeat('+TOTAL_WEEKS+',1fr);border-bottom:1px solid var(--border)">' + rowCells + '</div>' +
       '</div>';
+
+      // After each activity row, also flush milestones that fall within this row's week range
+      allRowsWithMs += flushMilestonesBefore(row.endWk);
     });
+
+    // After all activities in this phase, flush milestones up to phase end
+    var phMaxWk = Math.max.apply(null, ph.calWeeks);
+    allRowsWithMs += flushMilestonesBefore(phMaxWk);
   });
 
-  // milestone dots row
-  var msRow = '';
-  var hasMilestone = Object.keys(msWks).length > 0;
-  if (hasMilestone) {
-    var msCells = '';
-    for (var w=1; w<=TOTAL_WEEKS; w++) {
-      var ms = msWks[String(w)];
-      var isVac = vacWks.indexOf(w)>=0;
-      var isCur = w===currentWeek;
-      var dts = datesInWeek(w);
-      var dotHtml = dts.map(function(d){
-        return '<span class="tl-date-dot date-dot-'+d.type+'" title="'+esc(d.title)+'" style="display:inline-block;margin:0 1px"></span>';
-      }).join('');
-      msCells += '<div style="background:'+(isVac?'var(--surface2)':'var(--surface)')+';border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;min-height:22px;flex-direction:column;padding:2px 0">'+
-        (ms?'<div style="font-size:8px;font-weight:700;color:var(--purple);text-align:center;padding:0 1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%" title="'+esc(ms)+'">●</div>':'') +
-        (dotHtml?'<div style="display:flex;justify-content:center">'+dotHtml+'</div>':'') +
-      '</div>';
-    }
-    allRows += '<div style="display:contents">' +
-      '<div style="display:flex;align-items:center;padding:4px 10px;background:var(--purple-bg);border-bottom:1px solid var(--border);position:sticky;left:0;z-index:2">' +
-        '<span style="font-size:10px;font-weight:600;color:var(--purple-text);text-transform:uppercase;letter-spacing:0.05em">Milestones</span>' +
-      '</div>' +
-      '<div style="display:grid;grid-template-columns:repeat('+TOTAL_WEEKS+',1fr);border-bottom:1px solid var(--border)">' + msCells + '</div>' +
-    '</div>';
-  }
+  // Flush any remaining milestones at the end
+  allRowsWithMs += flushMilestonesBefore(TOTAL_WEEKS);
+
+  var allRows = allRowsWithMs;
 
   // ── 3. ASSEMBLE ──────────────────────────────────────────────────────────
   // Outer container: CSS grid with label col + week cols
@@ -1906,6 +1951,7 @@ let draggedElementId = null;
 let dragTargetId = null;
 
 function handleDragStart(e) {
+  if (e.target.closest('button') || e.target.closest('.tc-cb') || e.target.closest('.tc-expand')) return;
   const card = e.target.closest('.task-card');
   if (!card) return;
   draggedElementId = card.getAttribute('data-id');
@@ -1939,11 +1985,6 @@ function handleDragEnd(e) {
   dragTargetId = null;
   renderTasks();
   renderHome();
-}
-</script>
-
-<div class="modal-overlay" id="phase-modal-overlay" onclick="if(event.target===this)this.classList.remove('open')">
-... the rest of your HTML blocks stay down here ...
 }
 </script>
 
