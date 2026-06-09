@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Peer's Graduation Planner</title>
+<title>Peer's Graduation Planner</title> <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADMAAAAwCAIAAAAzV9XT...">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -1743,7 +1743,7 @@ function renderDocs() {
       (d.desc ? '<div class="doc-desc">' + esc(d.desc) + '</div>' : '') +
       '</div>' +
       '<span class="doc-status-pill doc-status-' + d.status + '">' + (statusLabels[d.status] || d.status) + '</span>' +
-      '<button class="doc-edit-btn" onclick="editDoc(' + JSON.stringify(d.id) + ')" title="Edit">' + editSvg + '</button>' +
+     '<button class="doc-edit-btn" onclick="editDoc(\'' + d.id + '\')" title="Edit">' + editSvg + '</button>' +
       (hasLink
         ? '<a href="' + esc(d.link) + '" target="_blank" class="doc-link-btn" title="Open">' + linkSvg + '</a>'
         : '<span class="doc-link-btn disabled" title="No link yet">' + linkSvg + '</span>') +
