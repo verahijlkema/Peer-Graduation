@@ -316,18 +316,18 @@
       "endWk": 5
     },
     {
-      "id": "g5",
-      "phase": "discovery",
-      "label": "(Feminist) AI theory",
-      "startWk": 5,
-      "endWk": 8
-    },
-    {
       "id": "g4",
       "phase": "discovery",
       "label": "Data collection",
       "startWk": 5,
       "endWk": 6
+    },
+    {
+      "id": "g5",
+      "phase": "discovery",
+      "label": "(Feminist) AI theory",
+      "startWk": 5,
+      "endWk": 8
     },
     {
       "id": "g7",
