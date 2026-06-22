@@ -248,6 +248,13 @@
   "docs": [],
   "gantt": [
     {
+      "id": "g_1782120640114",
+      "phase": "discovery",
+      "label": "Womens Health Background",
+      "startWk": 1,
+      "endWk": 1
+    },
+    {
       "id": "g1",
       "phase": "discovery",
       "label": "Research Perimenopause Background",
@@ -477,13 +484,6 @@
       "label": "Presentation preparation + practice",
       "startWk": 24,
       "endWk": 24
-    },
-    {
-      "id": "g_1782120640114",
-      "phase": "discovery",
-      "label": "Womens Health Background",
-      "startWk": 1,
-      "endWk": 1
     }
   ],
   "phases": [
