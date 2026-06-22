@@ -195,6 +195,18 @@
         "done": false,
         "subtasks": [],
         "ganttId": "g_1782120681779"
+      },
+      {
+        "id": "task_1782121159839",
+        "title": "Prep Interview questions",
+        "desc": "",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "",
+        "due": "",
+        "done": false,
+        "subtasks": [],
+        "ganttId": "g_1782121159839"
       }
     ],
     "taskStates": {}
@@ -496,6 +508,13 @@
       "label": "Presentation preparation + practice",
       "startWk": 24,
       "endWk": 24
+    },
+    {
+      "id": "g_1782121159839",
+      "phase": "discovery",
+      "label": "Prep Interview questions",
+      "startWk": 4,
+      "endWk": 4
     }
   ],
   "phases": [
