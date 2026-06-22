@@ -328,18 +328,18 @@
       "endWk": 5
     },
     {
-      "id": "g_1782121159839",
-      "phase": "discovery",
-      "label": "Prep Interview questions",
-      "startWk": 4,
-      "endWk": 4
-    },
-    {
       "id": "g4",
       "phase": "discovery",
       "label": "Data collection",
       "startWk": 5,
       "endWk": 6
+    },
+    {
+      "id": "g_1782121159839",
+      "phase": "discovery",
+      "label": "Prep Interview questions",
+      "startWk": 4,
+      "endWk": 4
     },
     {
       "id": "g5",
