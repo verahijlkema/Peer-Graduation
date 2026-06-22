@@ -287,13 +287,6 @@
       "endWk": 8
     },
     {
-      "id": "g10",
-      "phase": "discovery",
-      "label": "Patient journey map",
-      "startWk": 1,
-      "endWk": 5
-    },
-    {
       "id": "g11",
       "phase": "discovery",
       "label": "Stakeholder map",
