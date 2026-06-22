@@ -243,6 +243,13 @@
       "endWk": 2
     },
     {
+      "id": "g11",
+      "phase": "discovery",
+      "label": "Stakeholder map",
+      "startWk": 2,
+      "endWk": 3
+    },
+    {
       "id": "g_1782120115186",
       "phase": "discovery",
       "label": "Research Methodologies",
@@ -304,13 +311,6 @@
       "label": "Interview other relevant experts",
       "startWk": 5,
       "endWk": 8
-    },
-    {
-      "id": "g11",
-      "phase": "discovery",
-      "label": "Stakeholder map",
-      "startWk": 2,
-      "endWk": 3
     },
     {
       "id": "g12",
