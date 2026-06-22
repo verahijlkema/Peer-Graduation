@@ -339,7 +339,7 @@
     {
       "id": "g8",
       "phase": "discovery",
-      "label": "Interview patients (min 5)",
+      "label": "Interview patients",
       "startWk": 5,
       "endWk": 8
     },
