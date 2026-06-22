@@ -274,16 +274,16 @@
       "endWk": 2
     },
     {
-      "id": "g2",
+      "id": "g_1782120681779",
       "phase": "discovery",
-      "label": "Research NL healthcare system",
+      "label": "Company Structure",
       "startWk": 2,
       "endWk": 3
     },
     {
-      "id": "g_1782120681779",
+      "id": "g2",
       "phase": "discovery",
-      "label": "Company Structure",
+      "label": "Research NL healthcare system",
       "startWk": 2,
       "endWk": 3
     },
