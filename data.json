@@ -335,18 +335,18 @@
       "endWk": 6
     },
     {
-      "id": "g_1782121159839",
-      "phase": "discovery",
-      "label": "Prep Interview questions",
-      "startWk": 4,
-      "endWk": 4
-    },
-    {
       "id": "g5",
       "phase": "discovery",
       "label": "(Feminist) AI theory",
       "startWk": 5,
       "endWk": 8
+    },
+    {
+      "id": "g_1782121159839",
+      "phase": "discovery",
+      "label": "Prep Interview questions",
+      "startWk": 4,
+      "endWk": 4
     },
     {
       "id": "g7",
