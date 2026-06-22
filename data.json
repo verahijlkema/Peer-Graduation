@@ -171,6 +171,18 @@
         "done": false,
         "subtasks": [],
         "ganttId": "g_1782120115186"
+      },
+      {
+        "id": "task_1782120640114",
+        "title": "Womens Health Background",
+        "desc": "",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "",
+        "due": "",
+        "done": false,
+        "subtasks": [],
+        "ganttId": "g_1782120640114"
       }
     ],
     "taskStates": {}
@@ -465,6 +477,13 @@
       "label": "Presentation preparation + practice",
       "startWk": 24,
       "endWk": 24
+    },
+    {
+      "id": "g_1782120640114",
+      "phase": "discovery",
+      "label": "Womens Health Background",
+      "startWk": 1,
+      "endWk": 1
     }
   ],
   "phases": [
