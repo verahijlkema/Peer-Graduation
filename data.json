@@ -4,7 +4,7 @@
       {
         "id": "d1",
         "title": "Register in MyCase",
-        "desc": "Go to mycase.tudelft.nl — required before kick-off",
+        "desc": "Go to mycase.tudelft.nl â required before kick-off",
         "phase": "preparation",
         "priority": "deadline",
         "topic": "practical",
@@ -64,7 +64,7 @@
       {
         "id": "d4",
         "title": "Confirm kick-off meeting",
-        "desc": "Schedule with Richard, Sara and Isabella — full supervisory team must attend",
+        "desc": "Schedule with Richard, Sara and Isabella â full supervisory team must attend",
         "phase": "preparation",
         "priority": "high",
         "topic": "practical",
@@ -75,7 +75,7 @@
       {
         "id": "d5",
         "title": "Start HREC ethics application",
-        "desc": "Submit immediately after kick-off — takes minimum 3 weeks. You need this before any user testing.",
+        "desc": "Submit immediately after kick-off â takes minimum 3 weeks. You need this before any user testing.",
         "phase": "discovery",
         "priority": "deadline",
         "topic": "practical",
@@ -96,7 +96,7 @@
       },
       {
         "id": "d7",
-        "title": "Contextual interviews — patients",
+        "title": "Contextual interviews â patients",
         "desc": "Recruit 4-6 perimenopausal women from Ksyos care path",
         "phase": "discovery",
         "priority": "normal",
@@ -107,7 +107,7 @@
       },
       {
         "id": "d8",
-        "title": "Contextual interviews — clinicians",
+        "title": "Contextual interviews â clinicians",
         "desc": "Interview overgangsconsulente + GP + gynaecologist on data needs",
         "phase": "discovery",
         "priority": "normal",
@@ -188,14 +188,14 @@
       "title": "HREC application deadline",
       "date": "2026-06-08",
       "type": "deadline",
-      "notes": "Submit as early as possible — takes 3+ weeks to process"
+      "notes": "Submit as early as possible â takes 3+ weeks to process"
     },
     {
       "id": "dd3",
       "title": "Vacation",
       "date": "2026-07-13",
       "type": "vacation",
-      "notes": "13–19 July 2026"
+      "notes": "13â19 July 2026"
     },
     {
       "id": "dd4",
@@ -209,7 +209,7 @@
       "title": "Vacation",
       "date": "2026-08-31",
       "type": "vacation",
-      "notes": "31 Aug – 20 Sep 2026"
+      "notes": "31 Aug â 20 Sep 2026"
     },
     {
       "id": "dd6",
@@ -241,6 +241,13 @@
       "label": "Research Perimenopause Background",
       "startWk": 1,
       "endWk": 2
+    },
+    {
+      "id": "g_1782120115186",
+      "phase": "discovery",
+      "label": "Research Methodologies",
+      "startWk": 3,
+      "endWk": 4
     },
     {
       "id": "g2",
@@ -280,7 +287,7 @@
     {
       "id": "g7",
       "phase": "discovery",
-      "label": "Interview clinicians (GP, overgangsconsulente, endo, gyn…)",
+      "label": "Interview clinicians (GP, overgangsconsulente, endo, gynâ¦)",
       "startWk": 5,
       "endWk": 8
     },
@@ -458,13 +465,6 @@
       "label": "Presentation preparation + practice",
       "startWk": 24,
       "endWk": 24
-    },
-    {
-      "id": "g_1782120115186",
-      "phase": "discovery",
-      "label": "Research Methodologies",
-      "startWk": 3,
-      "endWk": 4
     }
   ],
   "phases": [
