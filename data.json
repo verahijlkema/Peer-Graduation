@@ -302,16 +302,16 @@
       "endWk": 4
     },
     {
-      "id": "g3",
+      "id": "g6",
       "phase": "discovery",
-      "label": "Behavioural psychology",
+      "label": "Existing interfaces",
       "startWk": 4,
       "endWk": 5
     },
     {
-      "id": "g6",
+      "id": "g3",
       "phase": "discovery",
-      "label": "Existing interfaces",
+      "label": "Behavioural psychology",
       "startWk": 4,
       "endWk": 5
     },
