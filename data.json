@@ -159,6 +159,18 @@
         "done": false,
         "subtasks": [],
         "due": "2026-07-05"
+      },
+      {
+        "id": "task_1782120115186",
+        "title": "Research Methodologies",
+        "desc": "",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "",
+        "due": "",
+        "done": false,
+        "subtasks": [],
+        "ganttId": "g_1782120115186"
       }
     ],
     "taskStates": {}
@@ -446,6 +458,13 @@
       "label": "Presentation preparation + practice",
       "startWk": 24,
       "endWk": 24
+    },
+    {
+      "id": "g_1782120115186",
+      "phase": "discovery",
+      "label": "Research Methodologies",
+      "startWk": 3,
+      "endWk": 4
     }
   ],
   "phases": [
