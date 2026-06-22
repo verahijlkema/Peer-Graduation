@@ -321,6 +321,13 @@
       "endWk": 5
     },
     {
+      "id": "g_1782121159839",
+      "phase": "discovery",
+      "label": "Prep Interview questions",
+      "startWk": 4,
+      "endWk": 4
+    },
+    {
       "id": "g3",
       "phase": "discovery",
       "label": "Behavioural psychology",
@@ -508,13 +515,6 @@
       "label": "Presentation preparation + practice",
       "startWk": 24,
       "endWk": 24
-    },
-    {
-      "id": "g_1782121159839",
-      "phase": "discovery",
-      "label": "Prep Interview questions",
-      "startWk": 4,
-      "endWk": 4
     }
   ],
   "phases": [
