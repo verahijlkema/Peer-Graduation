@@ -326,8 +326,8 @@
       "id": "g4",
       "phase": "discovery",
       "label": "Data collection",
-      "startWk": 6,
-      "endWk": 8
+      "startWk": 5,
+      "endWk": 6
     },
     {
       "id": "g7",
