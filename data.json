@@ -1,0 +1,540 @@
+{
+  "tasks": {
+    "tasks": [
+      {
+        "id": "d1",
+        "title": "Register in MyCase",
+        "desc": "Go to mycase.tudelft.nl — required before kick-off",
+        "phase": "preparation",
+        "priority": "deadline",
+        "topic": "practical",
+        "done": true,
+        "subtasks": [
+          {
+            "id": "s1",
+            "title": "Fill in project details",
+            "done": false
+          },
+          {
+            "id": "s2",
+            "title": "Upload supervisor agreement",
+            "done": false
+          }
+        ],
+        "due": "2026-06-07"
+      },
+      {
+        "id": "d2",
+        "title": "Upload graduation contract with Ksyos",
+        "desc": "Must be signed by both parties and uploaded to MyCase before kick-off",
+        "phase": "preparation",
+        "priority": "deadline",
+        "topic": "practical",
+        "done": true,
+        "subtasks": [],
+        "due": "2026-06-07"
+      },
+      {
+        "id": "d3",
+        "title": "Upload Project Proposal to MyCase",
+        "desc": "At least 3 working days before kick-off. Use the TU Delft template from the graduation website.",
+        "phase": "preparation",
+        "priority": "deadline",
+        "topic": "writing",
+        "done": true,
+        "subtasks": [
+          {
+            "id": "s3",
+            "title": "Download TU Delft template",
+            "done": false
+          },
+          {
+            "id": "s4",
+            "title": "Fill in proposal sections",
+            "done": false
+          },
+          {
+            "id": "s5",
+            "title": "Upload to MyCase",
+            "done": false
+          }
+        ],
+        "due": "2026-06-07"
+      },
+      {
+        "id": "d4",
+        "title": "Confirm kick-off meeting",
+        "desc": "Schedule with Richard, Sara and Isabella — full supervisory team must attend",
+        "phase": "preparation",
+        "priority": "high",
+        "topic": "practical",
+        "done": false,
+        "subtasks": [],
+        "due": ""
+      },
+      {
+        "id": "d5",
+        "title": "Start HREC ethics application",
+        "desc": "Submit immediately after kick-off — takes minimum 3 weeks. You need this before any user testing.",
+        "phase": "discovery",
+        "priority": "deadline",
+        "topic": "practical",
+        "done": true,
+        "subtasks": [],
+        "due": "2026-06-10"
+      },
+      {
+        "id": "d6",
+        "title": "Set up access to Ksyos platform",
+        "desc": "Get credentials for the perimenopause care path system from Isabella",
+        "phase": "discovery",
+        "priority": "high",
+        "topic": "practical",
+        "done": false,
+        "subtasks": [],
+        "due": ""
+      },
+      {
+        "id": "d7",
+        "title": "Contextual interviews — patients",
+        "desc": "Recruit 4-6 perimenopausal women from Ksyos care path",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "interviews",
+        "done": false,
+        "subtasks": [],
+        "due": ""
+      },
+      {
+        "id": "d8",
+        "title": "Contextual interviews — clinicians",
+        "desc": "Interview overgangsconsulente + GP + gynaecologist on data needs",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "interviews",
+        "done": false,
+        "subtasks": [],
+        "due": ""
+      },
+      {
+        "id": "d9",
+        "title": "Literature review: perimenopause biology",
+        "desc": "NHG-Standaard De overgang, NVOG guidelines, symptom mechanisms, hormonal fluctuation",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "literature",
+        "done": false,
+        "subtasks": [],
+        "due": "2026-06-14"
+      },
+      {
+        "id": "d10",
+        "title": "Literature review: NL healthcare system",
+        "desc": "VWS women's health agenda, GP gatekeeping, care-seeking behaviour, misdiagnosis patterns",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "literature",
+        "done": false,
+        "subtasks": [],
+        "due": "2026-06-21"
+      },
+      {
+        "id": "d11",
+        "title": "Literature review: PROMs, CATs & data quality",
+        "desc": "PROMIS framework, feminist health data critique, symptom tracking apps",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "literature",
+        "done": false,
+        "subtasks": [],
+        "due": "2026-06-28"
+      },
+      {
+        "id": "d12",
+        "title": "Literature review: design foundations",
+        "desc": "Health literacy, feminist HCI, double-sided interfaces, IDE graduation precedents",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "literature",
+        "done": false,
+        "subtasks": [],
+        "due": "2026-07-05"
+      }
+    ],
+    "taskStates": {}
+  },
+  "dates": [
+    {
+      "id": "dd1",
+      "title": "Kick-off meeting",
+      "date": "2026-06-09",
+      "type": "milestone",
+      "notes": "Full supervisory team: Richard, Sara, Isabella"
+    },
+    {
+      "id": "dd2",
+      "title": "HREC application deadline",
+      "date": "2026-06-08",
+      "type": "deadline",
+      "notes": "Submit as early as possible — takes 3+ weeks to process"
+    },
+    {
+      "id": "dd3",
+      "title": "Vacation",
+      "date": "2026-07-13",
+      "type": "vacation",
+      "notes": "13–19 July 2026"
+    },
+    {
+      "id": "dd4",
+      "title": "Midterm evaluation",
+      "date": "2026-08-03",
+      "type": "milestone",
+      "notes": "Self-evaluation form to supervisors 3 days before"
+    },
+    {
+      "id": "dd5",
+      "title": "Vacation",
+      "date": "2026-08-31",
+      "type": "vacation",
+      "notes": "31 Aug – 20 Sep 2026"
+    },
+    {
+      "id": "dd6",
+      "title": "Final study progress check",
+      "date": "2026-10-05",
+      "type": "deadline",
+      "notes": "All grades must be registered before Green Light"
+    },
+    {
+      "id": "dd7",
+      "title": "Green light meeting",
+      "date": "2026-10-19",
+      "type": "milestone",
+      "notes": "Submit 80% draft report + Turnitin check"
+    },
+    {
+      "id": "dd8",
+      "title": "Graduation / Presentation",
+      "date": "2026-11-16",
+      "type": "milestone",
+      "notes": "Public presentation at IDE Faculty"
+    }
+  ],
+  "docs": [],
+  "gantt": [
+    {
+      "id": "g1",
+      "phase": "discovery",
+      "label": "Research Perimenopause Background",
+      "startWk": 1,
+      "endWk": 2
+    },
+    {
+      "id": "g2",
+      "phase": "discovery",
+      "label": "Research NL healthcare system",
+      "startWk": 1,
+      "endWk": 2
+    },
+    {
+      "id": "g3",
+      "phase": "discovery",
+      "label": "Research Behavioural psychology",
+      "startWk": 1,
+      "endWk": 2
+    },
+    {
+      "id": "g4",
+      "phase": "discovery",
+      "label": "Research (soft) data collection methods (PROMs/CATs)",
+      "startWk": 2,
+      "endWk": 3
+    },
+    {
+      "id": "g5",
+      "phase": "discovery",
+      "label": "Research (feminist) AI theory & application uses",
+      "startWk": 2,
+      "endWk": 4
+    },
+    {
+      "id": "g6",
+      "phase": "discovery",
+      "label": "Research existing interfaces (double-sided/tracking)",
+      "startWk": 2,
+      "endWk": 5
+    },
+    {
+      "id": "g7",
+      "phase": "discovery",
+      "label": "Interview clinicians (GP, overgangsconsulente, endo, gyn…)",
+      "startWk": 3,
+      "endWk": 5
+    },
+    {
+      "id": "g8",
+      "phase": "discovery",
+      "label": "Interview patients (min 5)",
+      "startWk": 3,
+      "endWk": 6
+    },
+    {
+      "id": "g9",
+      "phase": "discovery",
+      "label": "Interview other relevant experts",
+      "startWk": 3,
+      "endWk": 8
+    },
+    {
+      "id": "g10",
+      "phase": "discovery",
+      "label": "Patient journey map",
+      "startWk": 1,
+      "endWk": 5
+    },
+    {
+      "id": "g11",
+      "phase": "discovery",
+      "label": "Stakeholder map",
+      "startWk": 1,
+      "endWk": 6
+    },
+    {
+      "id": "g12",
+      "phase": "framing",
+      "label": "Synthesis: cluster insights from interviews & literature",
+      "startWk": 6,
+      "endWk": 6
+    },
+    {
+      "id": "g13",
+      "phase": "framing",
+      "label": "Analyse & complete patient journey (innovation space)",
+      "startWk": 6,
+      "endWk": 8
+    },
+    {
+      "id": "g14",
+      "phase": "framing",
+      "label": "Define design principles",
+      "startWk": 8,
+      "endWk": 8
+    },
+    {
+      "id": "g15",
+      "phase": "framing",
+      "label": "Frame design objective",
+      "startWk": 8,
+      "endWk": 9
+    },
+    {
+      "id": "g16",
+      "phase": "framing",
+      "label": "Define evaluation criteria",
+      "startWk": 9,
+      "endWk": 9
+    },
+    {
+      "id": "g17",
+      "phase": "ideation",
+      "label": "Ideation & Concept generation",
+      "startWk": 10,
+      "endWk": 11
+    },
+    {
+      "id": "g18",
+      "phase": "ideation",
+      "label": "Brainstorm & co-creation sessions",
+      "startWk": 10,
+      "endWk": 11
+    },
+    {
+      "id": "g19",
+      "phase": "ideation",
+      "label": "Evaluate concepts against criteria",
+      "startWk": 11,
+      "endWk": 11
+    },
+    {
+      "id": "g20",
+      "phase": "ideation",
+      "label": "Choose strongest 2-3 concept(s)",
+      "startWk": 11,
+      "endWk": 11
+    },
+    {
+      "id": "g21",
+      "phase": "ideation",
+      "label": "Design information architecture (patient + clinician side)",
+      "startWk": 12,
+      "endWk": 12
+    },
+    {
+      "id": "g22",
+      "phase": "ideation",
+      "label": "Graphic design & data visualisation",
+      "startWk": 12,
+      "endWk": 13
+    },
+    {
+      "id": "g23",
+      "phase": "ideation",
+      "label": "Present final concept(s) to client",
+      "startWk": 13,
+      "endWk": 13
+    },
+    {
+      "id": "g24",
+      "phase": "ideation",
+      "label": "Choose final concept",
+      "startWk": 13,
+      "endWk": 13
+    },
+    {
+      "id": "g25",
+      "phase": "prototype",
+      "label": "Build patient side (core flows, key screens)",
+      "startWk": 17,
+      "endWk": 18
+    },
+    {
+      "id": "g26",
+      "phase": "prototype",
+      "label": "Build clinician side (data view, actionability)",
+      "startWk": 17,
+      "endWk": 18
+    },
+    {
+      "id": "g27",
+      "phase": "prototype",
+      "label": "User testing patients",
+      "startWk": 18,
+      "endWk": 19
+    },
+    {
+      "id": "g28",
+      "phase": "prototype",
+      "label": "User testing clinicians",
+      "startWk": 18,
+      "endWk": 19
+    },
+    {
+      "id": "g29",
+      "phase": "prototype",
+      "label": "Iterate on prototype based on test results",
+      "startWk": 19,
+      "endWk": 20
+    },
+    {
+      "id": "g30",
+      "phase": "prototype",
+      "label": "Final User testing (targeted, specific pain points)",
+      "startWk": 20,
+      "endWk": 21
+    },
+    {
+      "id": "g31",
+      "phase": "finalisation",
+      "label": "Final report writing",
+      "startWk": 22,
+      "endWk": 23
+    },
+    {
+      "id": "g32",
+      "phase": "finalisation",
+      "label": "Turnitin check",
+      "startWk": 23,
+      "endWk": 23
+    },
+    {
+      "id": "g33",
+      "phase": "finalisation",
+      "label": "Presentation preparation + practice",
+      "startWk": 24,
+      "endWk": 24
+    }
+  ],
+  "phases": [
+    {
+      "id": "discovery",
+      "label": "DISCOVER",
+      "calWeeks": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "bg": "#EEEDFC",
+      "text": "#26215C",
+      "desc": "Map the domain: understand perimenopause, the NL care system, existing tools, and what makes patient-reported data clinically meaningful."
+    },
+    {
+      "id": "framing",
+      "label": "DEFINE",
+      "calWeeks": [
+        8,
+        9,
+        10
+      ],
+      "bg": "#E0F5EE",
+      "text": "#04342C",
+      "desc": "Synthesise research into design principles. Frame the double-sided design challenge."
+    },
+    {
+      "id": "ideation",
+      "label": "DEVELOP",
+      "calWeeks": [
+        11,
+        12,
+        13
+      ],
+      "bg": "#FDF0D5",
+      "text": "#412402",
+      "desc": "Generate and evaluate design directions. Visual language, IA, co-creation."
+    },
+    {
+      "id": "prototype",
+      "label": "DELIVER",
+      "calWeeks": [
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "bg": "#E8F0FE",
+      "text": "#1A3A6B",
+      "desc": "Build and test the semi-functional prototype with real users on both sides of the interface."
+    },
+    {
+      "id": "finalisation",
+      "label": "FINALISE",
+      "calWeeks": [
+        22,
+        23,
+        24
+      ],
+      "bg": "#EAF3DE",
+      "text": "#173404",
+      "desc": "Write up, refine, prepare for Green Light and public graduation presentation."
+    }
+  ],
+  "timeline": {
+    "vac": [
+      7,
+      14,
+      15,
+      16
+    ],
+    "ms": {
+      "2": "Kick-off",
+      "10": "Midterm",
+      "19": "Progress Check",
+      "21": "Green Light",
+      "25": "Presentation"
+    }
+  }
+}
