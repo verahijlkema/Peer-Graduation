@@ -383,6 +383,10 @@
   .gantt-del-btn:hover { background:var(--red-bg);color:var(--red-text); }
   /* ... previous styles ... */
   .gantt-del-btn:hover { background:var(--red-bg);color:var(--red-text); }
+  .gantt-drag-handle { cursor:grab; color:var(--text3); font-size:13px; padding:0 4px 0 0; opacity:0.4; user-select:none; flex-shrink:0; }
+  .gantt-drag-handle:hover { opacity:1; }
+  .gantt-row-dragging { opacity:0.4; }
+  .gantt-row-drop-above .gantt-row-label { box-shadow:0 -2px 0 0 var(--accent) inset; }
 
   /* ── DRAG AND DROP UTILITIES ── */
   .task-card[draggable="true"] {
@@ -1568,8 +1572,9 @@ function renderFullTimeline() {
         }
         rowCells += '<div style="background:'+bg+';border-right:1px solid var(--border)">'+inner+'</div>';
       }
-      allRows += '<div style="display:contents" class="gantt-row" data-id="'+row.id+'">' +
-        '<div style="display:flex;align-items:center;padding:4px 10px 4px 18px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;left:0;z-index:2;gap:4px" class="gantt-row-label">' +
+      allRows += '<div style="display:contents" class="gantt-row" data-id="'+row.id+'" data-phase="'+row.phase+'">' +
+        '<div style="display:flex;align-items:center;padding:4px 10px 4px 10px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;left:0;z-index:2;gap:4px" class="gantt-row-label" draggable="true" ondragstart="ganttDragStart(event)" ondragover="ganttDragOver(event)" ondragleave="ganttDragLeave(event)" ondrop="ganttDrop(event)" ondragend="ganttDragEnd(event)">' +
+          '<span class="gantt-drag-handle" title="Drag to reorder">⠿</span>' +
           '<span style="font-size:11px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(row.label)+'">'+esc(row.label)+'</span>' +
           '<button onclick="openGanttRowModal(\''+row.id+'\')" class="gantt-act-btn" title="Edit">'+editSvg+'</button>' +
           '<button onclick="deleteGanttRow(\''+row.id+'\')" class="gantt-act-btn gantt-del-btn" title="Delete">'+delSvg+'</button>' +
@@ -2046,6 +2051,80 @@ function savePhaseEditor() {
 }
 
 // ── DRAG AND DROP TASK REORDERING ──────────────────────────────────────────
+
+// ── GANTT DRAG AND DROP ───────────────────────────────────────────────────────
+var ganttDraggedId = null;
+var ganttDropTargetId = null;
+
+function ganttDragStart(e) {
+  if (e.target.closest('button')) { e.preventDefault(); return; }
+  var label = e.target.closest('.gantt-row-label');
+  if (!label) return;
+  var row = label.closest('[data-id]');
+  if (!row) return;
+  ganttDraggedId = row.getAttribute('data-id');
+  ganttDropTargetId = null;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', ganttDraggedId);
+  setTimeout(function() {
+    document.querySelectorAll('.gantt-row[data-id="' + ganttDraggedId + '"] .gantt-row-label').forEach(function(el) {
+      el.classList.add('gantt-row-dragging');
+    });
+  }, 0);
+}
+
+function ganttDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  var label = e.target.closest('.gantt-row-label');
+  if (!label) return;
+  var row = label.closest('[data-id]');
+  if (!row) return;
+  var targetId = row.getAttribute('data-id');
+  if (targetId === ganttDraggedId) return;
+  // Clear previous indicator
+  document.querySelectorAll('.gantt-row-drop-above,.gantt-row-drop-below').forEach(function(el) {
+    el.classList.remove('gantt-row-drop-above','gantt-row-drop-below');
+  });
+  ganttDropTargetId = targetId;
+  label.classList.add('gantt-row-drop-above');
+}
+
+function ganttDragLeave(e) {
+  var label = e.target.closest('.gantt-row-label');
+  if (label) label.classList.remove('gantt-row-drop-above','gantt-row-drop-below');
+}
+
+function ganttDrop(e) {
+  e.preventDefault();
+  document.querySelectorAll('.gantt-row-drop-above,.gantt-row-drop-below,.gantt-row-dragging').forEach(function(el) {
+    el.classList.remove('gantt-row-drop-above','gantt-row-drop-below','gantt-row-dragging');
+  });
+  if (!ganttDraggedId || !ganttDropTargetId || ganttDraggedId === ganttDropTargetId) return;
+  var gantt = loadGantt();
+  var fromIdx = gantt.findIndex(function(r){ return r.id === ganttDraggedId; });
+  var toIdx   = gantt.findIndex(function(r){ return r.id === ganttDropTargetId; });
+  if (fromIdx === -1 || toIdx === -1) return;
+  // Only allow reorder within same phase
+  if (gantt[fromIdx].phase !== gantt[toIdx].phase) {
+    ganttDraggedId = null; ganttDropTargetId = null; return;
+  }
+  var removed = gantt.splice(fromIdx, 1)[0];
+  var newTo = gantt.findIndex(function(r){ return r.id === ganttDropTargetId; });
+  gantt.splice(newTo, 0, removed);
+  saveGantt(gantt);
+  ganttDraggedId = null; ganttDropTargetId = null;
+  renderFullTimeline();
+}
+
+function ganttDragEnd(e) {
+  document.querySelectorAll('.gantt-row-drop-above,.gantt-row-drop-below,.gantt-row-dragging').forEach(function(el) {
+    el.classList.remove('gantt-row-drop-above','gantt-row-drop-below','gantt-row-dragging');
+  });
+  ganttDraggedId = null;
+  ganttDropTargetId = null;
+}
+
 let draggedElementId = null;
 let dragTargetId = null;
 
