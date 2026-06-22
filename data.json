@@ -250,18 +250,18 @@
       "endWk": 3
     },
     {
-      "id": "g_1782120115186",
-      "phase": "discovery",
-      "label": "Research Methodologies",
-      "startWk": 3,
-      "endWk": 4
-    },
-    {
       "id": "g2",
       "phase": "discovery",
       "label": "Research NL healthcare system",
       "startWk": 2,
       "endWk": 3
+    },
+    {
+      "id": "g_1782120115186",
+      "phase": "discovery",
+      "label": "Research Methodologies",
+      "startWk": 3,
+      "endWk": 4
     },
     {
       "id": "g3",
