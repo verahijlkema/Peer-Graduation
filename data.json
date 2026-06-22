@@ -307,6 +307,13 @@
       "endWk": 4
     },
     {
+      "id": "g_1782121159839",
+      "phase": "discovery",
+      "label": "Prep Interview questions",
+      "startWk": 4,
+      "endWk": 4
+    },
+    {
       "id": "g_1782120115186",
       "phase": "discovery",
       "label": "Relevant Methodologies",
@@ -340,13 +347,6 @@
       "label": "(Feminist) AI theory",
       "startWk": 5,
       "endWk": 8
-    },
-    {
-      "id": "g_1782121159839",
-      "phase": "discovery",
-      "label": "Prep Interview questions",
-      "startWk": 4,
-      "endWk": 4
     },
     {
       "id": "g7",
