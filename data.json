@@ -183,6 +183,18 @@
         "done": false,
         "subtasks": [],
         "ganttId": "g_1782120640114"
+      },
+      {
+        "id": "task_1782120681779",
+        "title": "Company Structure",
+        "desc": "",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "",
+        "due": "",
+        "done": false,
+        "subtasks": [],
+        "ganttId": "g_1782120681779"
       }
     ],
     "taskStates": {}
@@ -484,6 +496,13 @@
       "label": "Presentation preparation + practice",
       "startWk": 24,
       "endWk": 24
+    },
+    {
+      "id": "g_1782120681779",
+      "phase": "discovery",
+      "label": "Company Structure",
+      "startWk": 2,
+      "endWk": 3
     }
   ],
   "phases": [
