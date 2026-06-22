@@ -344,13 +344,6 @@
       "endWk": 8
     },
     {
-      "id": "g9",
-      "phase": "discovery",
-      "label": "Interview other",
-      "startWk": 5,
-      "endWk": 8
-    },
-    {
       "id": "g12",
       "phase": "framing",
       "label": "Synthesis: cluster insights from interviews & literature",
