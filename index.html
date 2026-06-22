@@ -707,11 +707,112 @@ const DEFAULT_GANTT = [
   {id:'g33', phase:'finalisation',label:'Presentation preparation + practice',                          startWk:24, endWk:24},
 ];
 
+// ── GITHUB SYNC CONFIG ───────────────────────────────────────────────────────
+const GH_OWNER = 'vhijlkema';
+const GH_REPO  = 'Peer-Graduation';
+const GH_FILE  = 'data.json';
+const GH_API   = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`;
+
+function ghToken() { return localStorage.getItem('gh_pat') || ''; }
+
+// Show/hide the sync status indicator
+function setSyncStatus(msg, isError) {
+  var el = document.getElementById('gh-sync-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = isError ? '#C0392B' : '#888';
+}
+
+// Bundle ALL app data into one object for GitHub storage
+function bundleAllData() {
+  return {
+    tasks:   state,
+    dates:   loadDates(),
+    docs:    loadDocs(),
+    gantt:   loadGantt(),
+    phases:  loadPhases(),
+    timeline: loadTimeline()
+  };
+}
+
+// Unpack data loaded from GitHub into localStorage + state
+function unpackAllData(d) {
+  if (!d) return;
+  if (d.tasks)    { state = d.tasks; localStorage.setItem('vera_gp_v2', JSON.stringify(state)); }
+  if (d.dates)    { localStorage.setItem('vera_dates_v1', JSON.stringify(d.dates)); }
+  if (d.docs)     { localStorage.setItem('vera_docs_v1', JSON.stringify(d.docs)); }
+  if (d.gantt)    { localStorage.setItem('vera_gantt_v1', JSON.stringify(d.gantt)); }
+  if (d.phases)   { localStorage.setItem('vera_phases_v1', JSON.stringify(d.phases)); }
+  if (d.timeline) {
+    localStorage.setItem('vera_vac_v1', JSON.stringify(d.timeline.vac));
+    localStorage.setItem('vera_ms_v1',  JSON.stringify(d.timeline.ms));
+  }
+}
+
+// Load from GitHub — returns true if successful
+async function ghLoad() {
+  var token = ghToken();
+  if (!token) return false;
+  try {
+    setSyncStatus('↓ Syncing…');
+    var resp = await fetch(GH_API, {
+      headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (resp.status === 404) { setSyncStatus(''); return false; } // file doesn't exist yet, first run
+    if (!resp.ok) { setSyncStatus('Sync error ' + resp.status, true); return false; }
+    var json = await resp.json();
+    var data = JSON.parse(atob(json.content.replace(/\n/g,'')));
+    localStorage.setItem('gh_file_sha', json.sha); // needed for updates
+    unpackAllData(data);
+    setSyncStatus('');
+    return true;
+  } catch(e) {
+    setSyncStatus('Sync failed', true);
+    return false;
+  }
+}
+
+// Save to GitHub — debounced so rapid edits don't spam API
+var ghSaveTimer = null;
+function ghSave() {
+  // Always write to localStorage immediately
+  var data = bundleAllData();
+  // Then push to GitHub after a short delay
+  clearTimeout(ghSaveTimer);
+  ghSaveTimer = setTimeout(async function() {
+    var token = ghToken();
+    if (!token) return;
+    try {
+      setSyncStatus('↑ Saving…');
+      var content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+      var sha = localStorage.getItem('gh_file_sha');
+      var body = { message: 'Update data.json', content: content };
+      if (sha) body.sha = sha;
+      var resp = await fetch(GH_API, {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'token ' + token,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+      if (!resp.ok) { setSyncStatus('Save error ' + resp.status, true); return; }
+      var json = await resp.json();
+      localStorage.setItem('gh_file_sha', json.content.sha);
+      setSyncStatus('✓ Saved');
+      setTimeout(function(){ setSyncStatus(''); }, 2000);
+    } catch(e) {
+      setSyncStatus('Save failed', true);
+    }
+  }, 1200); // wait 1.2s after last edit before pushing
+}
+
 function loadGantt() {
   try { var s = localStorage.getItem('vera_gantt_v1'); if (s) return JSON.parse(s); } catch(e) {}
   return JSON.parse(JSON.stringify(DEFAULT_GANTT));
 }
-function saveGantt(rows) { localStorage.setItem('vera_gantt_v1', JSON.stringify(rows)); }
+function saveGantt(rows) { localStorage.setItem('vera_gantt_v1', JSON.stringify(rows)); ghSave(); }
 
 function loadPhases() {
   try {
@@ -720,7 +821,7 @@ function loadPhases() {
   } catch(e) {}
   return JSON.parse(JSON.stringify(DEFAULT_PHASES));
 }
-function savePhases(phases) { localStorage.setItem('vera_phases_v1', JSON.stringify(phases)); }
+function savePhases(phases) { localStorage.setItem('vera_phases_v1', JSON.stringify(phases)); ghSave(); }
 
 // PHASES kept for task phase labels — rebuilt on init and after phase edits
 var PHASES = [{id:'preparation', label:'PREPARATION', desc:'Administrative setup, register in MyCase, confirm kick-off, set up all project logistics'}].concat(loadPhases());
@@ -767,6 +868,7 @@ function load() {
 }
 function save() {
   localStorage.setItem('vera_gp_v2', JSON.stringify(state));
+  ghSave();
 }
 
 function loadDates() {
@@ -776,7 +878,7 @@ function loadDates() {
   } catch(e) {}
   return JSON.parse(JSON.stringify(DEFAULT_DATES));
 }
-function saveDates(dates) { localStorage.setItem('vera_dates_v1', JSON.stringify(dates)); }
+function saveDates(dates) { localStorage.setItem('vera_dates_v1', JSON.stringify(dates)); ghSave(); }
 function getDates() { return loadDates(); }
 
 function loadDocs() {
@@ -786,7 +888,7 @@ function loadDocs() {
   } catch(e) {}
   return JSON.parse(JSON.stringify(DEFAULT_DOCS));
 }
-function saveDocs(docs) { localStorage.setItem('vera_docs_v1', JSON.stringify(docs)); }
+function saveDocs(docs) { localStorage.setItem('vera_docs_v1', JSON.stringify(docs)); ghSave(); }
 
 function loadTimeline() {
   var defaultVac = [7,14,15,16];
@@ -801,7 +903,8 @@ function loadTimeline() {
 }
 function saveTimeline(vac, ms) {
   localStorage.setItem('vera_vac_v1', JSON.stringify(vac));
-  localStorage.setItem('vera_ms_v1', JSON.stringify(ms));
+  localStorage.setItem('vera_ms_v1',  JSON.stringify(ms));
+  ghSave();
 }
 function toggleVacation(weekNum) {
   var t = loadTimeline();
@@ -1855,8 +1958,12 @@ document.addEventListener('keydown', function(e) {
 });
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
-load();
-renderHome();
+(async function init() {
+  load(); // load from localStorage first so app renders immediately
+  renderHome();
+  var ok = await ghLoad(); // then try GitHub — will re-render if data was fresher
+  if (ok) { renderHome(); }
+})();
 
 
 // ── PHASE EDITOR ─────────────────────────────────────────────────────────────
@@ -2003,6 +2110,87 @@ function handleDragEnd(e) {
 
 <!-- GANTT ROW MODAL -->
 <div class="modal-overlay" id="gantt-row-overlay" onclick="if(event.target===this)closeGanttModal()"></div>
+
+
+<!-- GITHUB SYNC UI -->
+<div id="gh-sync-bar" style="position:fixed;bottom:12px;right:12px;display:flex;align-items:center;gap:8px;z-index:9999;font-size:11px;font-family:inherit">
+  <span id="gh-sync-status" style="color:#888"></span>
+  <button id="gh-token-btn" onclick="ghShowTokenDialog()"
+    style="padding:4px 8px;font-size:10px;font-family:inherit;background:var(--surface2,#f0f0f0);border:1px solid var(--border,#ddd);border-radius:6px;cursor:pointer;color:var(--text2,#666)">
+    ⚙ Sync
+  </button>
+</div>
+
+<div id="gh-token-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:10000;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;padding:24px;max-width:420px;width:90%;font-family:inherit;box-shadow:0 8px 32px rgba(0,0,0,0.18)">
+    <h3 style="margin:0 0 8px;font-size:15px">GitHub Sync</h3>
+    <p style="font-size:12px;color:#666;margin:0 0 16px;line-height:1.5">
+      Paste your GitHub Personal Access Token to enable cross-device sync.
+      The token is stored only in this browser — not in your code.
+    </p>
+    <p style="font-size:11px;color:#888;margin:0 0 10px">
+      Create one at <strong>github.com → Settings → Developer settings → Personal access tokens → Fine-grained tokens</strong>.
+      Give it <em>Contents: Read &amp; Write</em> access to the Peer-Graduation repo.
+    </p>
+    <input id="gh-token-input" type="password" placeholder="github_pat_…"
+      style="width:100%;box-sizing:border-box;padding:8px 10px;font-size:12px;border:1px solid #ddd;border-radius:6px;font-family:monospace;margin-bottom:12px" />
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="ghHideTokenDialog()"
+        style="padding:6px 14px;font-size:12px;font-family:inherit;background:none;border:1px solid #ddd;border-radius:6px;cursor:pointer">
+        Cancel
+      </button>
+      <button onclick="ghSaveToken()"
+        style="padding:6px 14px;font-size:12px;font-family:inherit;background:#5B4FCF;color:#fff;border:none;border-radius:6px;cursor:pointer">
+        Save &amp; sync now
+      </button>
+      <button onclick="ghClearToken()"
+        style="padding:6px 14px;font-size:12px;font-family:inherit;background:none;border:1px solid #e55;border-radius:6px;cursor:pointer;color:#c00">
+        Clear token
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+function ghShowTokenDialog() {
+  var inp = document.getElementById('gh-token-input');
+  inp.value = ghToken();
+  var ov = document.getElementById('gh-token-overlay');
+  ov.style.display = 'flex';
+  setTimeout(function(){ inp.focus(); }, 50);
+}
+function ghHideTokenDialog() {
+  document.getElementById('gh-token-overlay').style.display = 'none';
+}
+function ghSaveToken() {
+  var val = document.getElementById('gh-token-input').value.trim();
+  if (!val) { alert('Please paste your token first.'); return; }
+  localStorage.setItem('gh_pat', val);
+  ghHideTokenDialog();
+  ghLoad().then(function(ok){
+    if (ok) { renderHome(); renderTasks ? renderTasks() : null; }
+  });
+}
+function ghClearToken() {
+  if (!confirm('Remove the saved token? Sync will stop working on this device.')) return;
+  localStorage.removeItem('gh_pat');
+  localStorage.removeItem('gh_file_sha');
+  ghHideTokenDialog();
+  setSyncStatus('Token cleared');
+  setTimeout(function(){ setSyncStatus(''); }, 2000);
+}
+// Update button label based on whether token exists
+(function(){ 
+  function updateBtn() {
+    var btn = document.getElementById('gh-token-btn');
+    if (!btn) return;
+    btn.textContent = ghToken() ? '⚙ Sync ✓' : '⚙ Sync';
+    btn.style.color = ghToken() ? '#5B4FCF' : 'var(--text2,#666)';
+  }
+  document.addEventListener('DOMContentLoaded', updateBtn);
+  setTimeout(updateBtn, 500);
+})();
+</script>
 
 </body>
 </html>
