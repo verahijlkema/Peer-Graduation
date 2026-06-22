@@ -318,7 +318,7 @@
     {
       "id": "g4",
       "phase": "discovery",
-      "label": "Research (soft) data collection methods (PROMs/CATs)",
+      "label": "Data collection (PROMs/CATs)",
       "startWk": 6,
       "endWk": 8
     },
