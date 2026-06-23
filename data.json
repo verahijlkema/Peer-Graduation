@@ -289,6 +289,17 @@
         "id": "task_1782208996337",
         "done": true,
         "subtasks": []
+      },
+      {
+        "title": "Gynaecologist Interviews",
+        "desc": "",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "interviews",
+        "due": "2026-07-20",
+        "id": "task_1782209366173",
+        "done": false,
+        "subtasks": []
       }
     ],
     "taskStates": {
