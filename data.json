@@ -317,6 +317,17 @@
         "id": "task_1782208861457",
         "done": false,
         "subtasks": []
+      },
+      {
+        "title": "Research Feminist AI Technology",
+        "desc": "",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "literature",
+        "due": "2026-07-12",
+        "id": "task_1782208942100",
+        "done": false,
+        "subtasks": []
       }
     ],
     "taskStates": {
