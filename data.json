@@ -177,7 +177,13 @@
         "priority": "normal",
         "topic": "literature",
         "done": true,
-        "subtasks": [],
+        "subtasks": [
+          {
+            "id": "st_1782209519862",
+            "title": "Make Context/System Map",
+            "done": false
+          }
+        ],
         "due": "2026-06-21"
       },
       {
@@ -355,7 +361,8 @@
       "d7_open": true,
       "task_1782209366173_open": true,
       "task_1782209385543_open": true,
-      "task_1782209458733_open": true
+      "task_1782209458733_open": true,
+      "d10_open": true
     }
   },
   "dates": [
