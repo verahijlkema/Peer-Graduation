@@ -260,7 +260,7 @@
         "topic": "interviews",
         "due": "2026-06-28",
         "id": "task_1782208757910",
-        "done": false,
+        "done": true,
         "subtasks": []
       },
       {
@@ -271,7 +271,7 @@
         "topic": "interviews",
         "due": "2026-06-28",
         "id": "task_1782208771270",
-        "done": false,
+        "done": true,
         "subtasks": []
       }
     ],
