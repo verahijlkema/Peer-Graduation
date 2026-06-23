@@ -295,6 +295,17 @@
         "id": "task_1782208805720",
         "done": true,
         "subtasks": []
+      },
+      {
+        "title": "Research Existing Interfaces",
+        "desc": "",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "literature",
+        "due": "2026-07-05",
+        "id": "task_1782208835473",
+        "done": false,
+        "subtasks": []
       }
     ],
     "taskStates": {
