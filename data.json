@@ -251,6 +251,17 @@
         "id": "task_1782208655683",
         "done": true,
         "subtasks": []
+      },
+      {
+        "title": "Prepare Interview Questions Patients",
+        "desc": "",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "interviews",
+        "due": "2026-06-28",
+        "id": "task_1782208757910",
+        "done": false,
+        "subtasks": []
       }
     ],
     "taskStates": {
