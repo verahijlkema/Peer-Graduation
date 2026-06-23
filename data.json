@@ -96,14 +96,14 @@
       },
       {
         "id": "d7",
-        "title": "Contextual interviews Ã¢ÂÂ patients",
-        "desc": "Recruit 4-6 perimenopausal women from Ksyos care path",
+        "title": "Contact 4-6 Patients",
+        "desc": "",
         "phase": "discovery",
         "priority": "normal",
         "topic": "interviews",
         "done": false,
         "subtasks": [],
-        "due": ""
+        "due": "2026-06-28"
       },
       {
         "id": "d8",
@@ -289,7 +289,7 @@
         "topic": "design",
         "due": "2026-06-21",
         "id": "task_1782208996337",
-        "done": false,
+        "done": true,
         "subtasks": []
       }
     ],
