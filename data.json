@@ -284,6 +284,17 @@
         "id": "task_1782208788198",
         "done": true,
         "subtasks": []
+      },
+      {
+        "title": "Prepare Interview Questions Overgangsconsulentes",
+        "desc": "",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "interviews",
+        "due": "2026-06-28",
+        "id": "task_1782208805720",
+        "done": false,
+        "subtasks": []
       }
     ],
     "taskStates": {
