@@ -207,6 +207,17 @@
         "done": false,
         "subtasks": [],
         "ganttId": "g_1782121159839"
+      },
+      {
+        "title": "Research Women's Health Basics",
+        "desc": "",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "literature",
+        "due": "2026-06-14",
+        "id": "task_1782208535943",
+        "done": false,
+        "subtasks": []
       }
     ],
     "taskStates": {
