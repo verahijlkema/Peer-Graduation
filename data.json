@@ -118,6 +118,16 @@
             "id": "st_1782209213546",
             "title": "Prepare Interview Questions",
             "done": false
+          },
+          {
+            "id": "st_1782209220754",
+            "title": "Contact Patients",
+            "done": false
+          },
+          {
+            "id": "st_1782209227097",
+            "title": "Schedule Interviews",
+            "done": false
           }
         ],
         "due": "2026-06-28"
