@@ -331,7 +331,13 @@
         "due": "2026-07-20",
         "id": "task_1782209458733",
         "done": false,
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": "st_1782209468342",
+            "title": "Prepare Interview Questions",
+            "done": false
+          }
+        ]
       }
     ],
     "taskStates": {
@@ -344,7 +350,8 @@
       "d8_open": true,
       "d7_open": true,
       "task_1782209366173_open": true,
-      "task_1782209385543_open": true
+      "task_1782209385543_open": true,
+      "task_1782209458733_open": true
     }
   },
   "dates": [
