@@ -139,6 +139,17 @@
         "due": "2026-06-21"
       },
       {
+        "title": "Research Relevant Stakeholders",
+        "desc": "",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "literature",
+        "due": "2026-06-28",
+        "id": "task_1782208699007",
+        "done": false,
+        "subtasks": []
+      },
+      {
         "id": "d11",
         "title": "Literature review: PROMs, CATs & data quality",
         "desc": "PROMIS framework, feminist health data critique, symptom tracking apps",
@@ -228,17 +239,6 @@
         "due": "2026-06-21",
         "id": "task_1782208655683",
         "done": true,
-        "subtasks": []
-      },
-      {
-        "title": "Research Relevant Stakeholders",
-        "desc": "",
-        "phase": "discovery",
-        "priority": "normal",
-        "topic": "literature",
-        "due": "2026-06-28",
-        "id": "task_1782208699007",
-        "done": false,
         "subtasks": []
       },
       {
