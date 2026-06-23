@@ -280,6 +280,17 @@
         "id": "task_1782208942100",
         "done": false,
         "subtasks": []
+      },
+      {
+        "title": "Make System Map",
+        "desc": "",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "design",
+        "due": "2026-06-21",
+        "id": "task_1782208996337",
+        "done": false,
+        "subtasks": []
       }
     ],
     "taskStates": {
