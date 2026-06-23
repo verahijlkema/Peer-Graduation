@@ -300,6 +300,17 @@
         "id": "task_1782209366173",
         "done": false,
         "subtasks": []
+      },
+      {
+        "title": "Menopause Counsellor Interviews",
+        "desc": "",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "interviews",
+        "due": "2026-07-20",
+        "id": "task_1782209385543",
+        "done": false,
+        "subtasks": []
       }
     ],
     "taskStates": {
