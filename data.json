@@ -113,7 +113,13 @@
         "priority": "normal",
         "topic": "interviews",
         "done": false,
-        "subtasks": [],
+        "subtasks": [
+          {
+            "id": "st_1782209213546",
+            "title": "Prepare Interview Questions",
+            "done": false
+          }
+        ],
         "due": "2026-06-28"
       },
       {
@@ -299,7 +305,8 @@
       "d1_open": false,
       "d4_open": false,
       "d2_open": false,
-      "d9_open": false
+      "d9_open": false,
+      "d8_open": true
     }
   },
   "dates": [
