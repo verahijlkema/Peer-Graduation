@@ -183,18 +183,6 @@
         "due": "2026-07-05"
       },
       {
-        "id": "task_1782120640114",
-        "title": "Womens Health",
-        "desc": "",
-        "phase": "discovery",
-        "priority": "normal",
-        "topic": "",
-        "due": "",
-        "done": false,
-        "subtasks": [],
-        "ganttId": "g_1782120640114"
-      },
-      {
         "id": "task_1782120681779",
         "title": "Company Structure",
         "desc": "",
