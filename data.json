@@ -64,7 +64,7 @@
       {
         "id": "d4",
         "title": "Confirm kick-off meeting",
-        "desc": "Schedule with Richard, Sara and Isabella Ã¢ÂÂ full supervisory team must attend",
+        "desc": "Schedule with Richard, Sara and Isabella, full supervisory team must attend!",
         "phase": "preparation",
         "priority": "high",
         "topic": "practical",
@@ -296,7 +296,8 @@
     "taskStates": {
       "group_discovery_open": true,
       "d3_open": false,
-      "d1_open": false
+      "d1_open": false,
+      "d4_open": true
     }
   },
   "dates": [
