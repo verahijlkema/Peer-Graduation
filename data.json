@@ -221,28 +221,6 @@
         "subtasks": []
       },
       {
-        "title": "Prepare Interview Questions GP's",
-        "desc": "",
-        "phase": "discovery",
-        "priority": "normal",
-        "topic": "interviews",
-        "due": "2026-06-28",
-        "id": "task_1782208771270",
-        "done": true,
-        "subtasks": []
-      },
-      {
-        "title": "Prepare Interview Questions Gynaecologists",
-        "desc": "",
-        "phase": "discovery",
-        "priority": "normal",
-        "topic": "interviews",
-        "due": "2026-06-28",
-        "id": "task_1782208788198",
-        "done": true,
-        "subtasks": []
-      },
-      {
         "title": "Prepare Interview Questions Overgangsconsulentes",
         "desc": "",
         "phase": "discovery",
