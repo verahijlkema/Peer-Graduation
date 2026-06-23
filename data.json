@@ -306,6 +306,17 @@
         "id": "task_1782208835473",
         "done": false,
         "subtasks": []
+      },
+      {
+        "title": "Research Behavioural Psychology",
+        "desc": "",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "literature",
+        "due": "2026-07-05",
+        "id": "task_1782208861457",
+        "done": false,
+        "subtasks": []
       }
     ],
     "taskStates": {
