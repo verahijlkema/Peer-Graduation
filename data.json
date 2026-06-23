@@ -280,17 +280,6 @@
         "subtasks": []
       },
       {
-        "title": "Make System Map",
-        "desc": "",
-        "phase": "discovery",
-        "priority": "normal",
-        "topic": "design",
-        "due": "2026-06-21",
-        "id": "task_1782208996337",
-        "done": true,
-        "subtasks": []
-      },
-      {
         "title": "Gynaecologist Interviews",
         "desc": "",
         "phase": "discovery",
@@ -345,6 +334,11 @@
           {
             "id": "st_1782209482758",
             "title": "Schedule Interviews",
+            "done": false
+          },
+          {
+            "id": "st_1782209488173",
+            "title": "Process transcription",
             "done": false
           }
         ]
