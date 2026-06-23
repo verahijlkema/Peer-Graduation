@@ -262,6 +262,17 @@
         "id": "task_1782208757910",
         "done": false,
         "subtasks": []
+      },
+      {
+        "title": "Prepare Interview Questions GP's",
+        "desc": "",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "interviews",
+        "due": "2026-06-28",
+        "id": "task_1782208771270",
+        "done": false,
+        "subtasks": []
       }
     ],
     "taskStates": {
