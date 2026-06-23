@@ -107,14 +107,14 @@
       },
       {
         "id": "d8",
-        "title": "Contextual interviews Ã¢ÂÂ clinicians",
+        "title": "Contact Clinicians",
         "desc": "Interview overgangsconsulente + GP + gynaecologist on data needs",
         "phase": "discovery",
         "priority": "normal",
         "topic": "interviews",
         "done": false,
         "subtasks": [],
-        "due": ""
+        "due": "2026-06-28"
       },
       {
         "id": "d9",
