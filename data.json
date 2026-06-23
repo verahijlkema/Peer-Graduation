@@ -162,14 +162,14 @@
       },
       {
         "id": "d11",
-        "title": "Literature review: PROMs, CATs & data quality",
-        "desc": "PROMIS framework, feminist health data critique, symptom tracking apps",
+        "title": "Research Data Collection",
+        "desc": "PROMs, CATs & data quality (PROMIS framework), feminist health data critique, symptom tracking apps",
         "phase": "discovery",
         "priority": "normal",
         "topic": "literature",
         "done": false,
         "subtasks": [],
-        "due": "2026-06-28"
+        "due": "2026-07-12"
       },
       {
         "id": "d12",
