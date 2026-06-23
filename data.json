@@ -183,30 +183,6 @@
         "due": "2026-07-05"
       },
       {
-        "id": "task_1782120681779",
-        "title": "Company Structure",
-        "desc": "",
-        "phase": "discovery",
-        "priority": "normal",
-        "topic": "",
-        "due": "",
-        "done": false,
-        "subtasks": [],
-        "ganttId": "g_1782120681779"
-      },
-      {
-        "id": "task_1782121159839",
-        "title": "Prep Interview questions",
-        "desc": "",
-        "phase": "discovery",
-        "priority": "normal",
-        "topic": "",
-        "due": "",
-        "done": false,
-        "subtasks": [],
-        "ganttId": "g_1782121159839"
-      },
-      {
         "title": "Research Women's Health Basics",
         "desc": "",
         "phase": "discovery",
