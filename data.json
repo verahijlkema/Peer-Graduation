@@ -96,14 +96,14 @@
       },
       {
         "id": "d7",
-        "title": "Interview Patients",
+        "title": "GP Interviews",
         "desc": "",
         "phase": "discovery",
         "priority": "normal",
         "topic": "interviews",
         "done": false,
         "subtasks": [],
-        "due": "2026-07-26"
+        "due": "2026-07-20"
       },
       {
         "id": "d8",
