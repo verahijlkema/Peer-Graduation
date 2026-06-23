@@ -221,17 +221,6 @@
         "subtasks": []
       },
       {
-        "title": "Prepare Interview Questions Overgangsconsulentes",
-        "desc": "",
-        "phase": "discovery",
-        "priority": "normal",
-        "topic": "interviews",
-        "due": "2026-06-28",
-        "id": "task_1782208805720",
-        "done": true,
-        "subtasks": []
-      },
-      {
         "title": "Research Existing Interfaces",
         "desc": "",
         "phase": "discovery",
