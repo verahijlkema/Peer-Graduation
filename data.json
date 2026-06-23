@@ -321,28 +321,6 @@
             "done": false
           }
         ]
-      },
-      {
-        "title": "Menopause Counsellor Interviews",
-        "desc": "",
-        "phase": "discovery",
-        "priority": "normal",
-        "topic": "interviews",
-        "due": "2026-07-20",
-        "id": "task_1782209385543",
-        "done": false,
-        "subtasks": [
-          {
-            "id": "st_1782209426999",
-            "title": "Prepare Interview Questions",
-            "done": false
-          },
-          {
-            "id": "st_1782209434606",
-            "title": "Contact Gynaecologists",
-            "done": true
-          }
-        ]
       }
     ],
     "taskStates": {
