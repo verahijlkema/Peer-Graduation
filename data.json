@@ -295,7 +295,8 @@
     ],
     "taskStates": {
       "group_discovery_open": true,
-      "d3_open": false
+      "d3_open": false,
+      "d1_open": true
     }
   },
   "dates": [
