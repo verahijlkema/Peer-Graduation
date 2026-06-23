@@ -335,11 +335,16 @@
           {
             "id": "st_1782209468342",
             "title": "Prepare Interview Questions",
-            "done": false
+            "done": true
           },
           {
             "id": "st_1782209475765",
             "title": "Contact Counsellors",
+            "done": false
+          },
+          {
+            "id": "st_1782209482758",
+            "title": "Schedule Interviews",
             "done": false
           }
         ]
