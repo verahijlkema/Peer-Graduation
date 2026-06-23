@@ -46,17 +46,17 @@
           {
             "id": "s3",
             "title": "Download TU Delft template",
-            "done": false
+            "done": true
           },
           {
             "id": "s4",
             "title": "Fill in proposal sections",
-            "done": false
+            "done": true
           },
           {
             "id": "s5",
             "title": "Upload to MyCase",
-            "done": false
+            "done": true
           }
         ],
         "due": "2026-06-07"
