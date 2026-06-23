@@ -102,7 +102,13 @@
         "priority": "normal",
         "topic": "interviews",
         "done": false,
-        "subtasks": [],
+        "subtasks": [
+          {
+            "id": "st_1782209302009",
+            "title": "Prepare Interview Questions",
+            "done": false
+          }
+        ],
         "due": "2026-07-20"
       },
       {
