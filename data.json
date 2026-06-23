@@ -4,7 +4,7 @@
       {
         "id": "d1",
         "title": "Register in MyCase",
-        "desc": "Go to mycase.tudelft.nl â required before kick-off",
+        "desc": "Go to mycase.tudelft.nl Ã¢ÂÂ required before kick-off",
         "phase": "preparation",
         "priority": "deadline",
         "topic": "practical",
@@ -64,18 +64,18 @@
       {
         "id": "d4",
         "title": "Confirm kick-off meeting",
-        "desc": "Schedule with Richard, Sara and Isabella â full supervisory team must attend",
+        "desc": "Schedule with Richard, Sara and Isabella Ã¢ÂÂ full supervisory team must attend",
         "phase": "preparation",
         "priority": "high",
         "topic": "practical",
-        "done": false,
+        "done": true,
         "subtasks": [],
         "due": ""
       },
       {
         "id": "d5",
         "title": "Start HREC ethics application",
-        "desc": "Submit immediately after kick-off â takes minimum 3 weeks. You need this before any user testing.",
+        "desc": "Submit immediately after kick-off Ã¢ÂÂ takes minimum 3 weeks. You need this before any user testing.",
         "phase": "discovery",
         "priority": "deadline",
         "topic": "practical",
@@ -90,13 +90,13 @@
         "phase": "discovery",
         "priority": "high",
         "topic": "practical",
-        "done": false,
+        "done": true,
         "subtasks": [],
         "due": ""
       },
       {
         "id": "d7",
-        "title": "Contextual interviews â patients",
+        "title": "Contextual interviews Ã¢ÂÂ patients",
         "desc": "Recruit 4-6 perimenopausal women from Ksyos care path",
         "phase": "discovery",
         "priority": "normal",
@@ -107,7 +107,7 @@
       },
       {
         "id": "d8",
-        "title": "Contextual interviews â clinicians",
+        "title": "Contextual interviews Ã¢ÂÂ clinicians",
         "desc": "Interview overgangsconsulente + GP + gynaecologist on data needs",
         "phase": "discovery",
         "priority": "normal",
@@ -224,14 +224,14 @@
       "title": "HREC application deadline",
       "date": "2026-06-08",
       "type": "deadline",
-      "notes": "Submit as early as possible â takes 3+ weeks to process"
+      "notes": "Submit as early as possible Ã¢ÂÂ takes 3+ weeks to process"
     },
     {
       "id": "dd3",
       "title": "Vacation",
       "date": "2026-07-13",
       "type": "vacation",
-      "notes": "13â19 July 2026"
+      "notes": "13Ã¢ÂÂ19 July 2026"
     },
     {
       "id": "dd4",
@@ -245,7 +245,7 @@
       "title": "Vacation",
       "date": "2026-08-31",
       "type": "vacation",
-      "notes": "31 Aug â 20 Sep 2026"
+      "notes": "31 Aug Ã¢ÂÂ 20 Sep 2026"
     },
     {
       "id": "dd6",
