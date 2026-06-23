@@ -297,7 +297,8 @@
       "group_discovery_open": true,
       "d3_open": false,
       "d1_open": false,
-      "d4_open": false
+      "d4_open": false,
+      "d2_open": true
     }
   },
   "dates": [
