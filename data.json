@@ -13,12 +13,12 @@
           {
             "id": "s1",
             "title": "Fill in project details",
-            "done": false
+            "done": true
           },
           {
             "id": "s2",
             "title": "Upload supervisor agreement",
-            "done": false
+            "done": true
           }
         ],
         "due": "2026-06-07"
