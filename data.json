@@ -209,7 +209,9 @@
         "ganttId": "g_1782121159839"
       }
     ],
-    "taskStates": {}
+    "taskStates": {
+      "group_discovery_open": true
+    }
   },
   "dates": [
     {
