@@ -256,7 +256,13 @@
         "due": "2026-06-21",
         "id": "task_1782208655683",
         "done": true,
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": "st_1782209566213",
+            "title": "SWOT Analysis",
+            "done": false
+          }
+        ]
       },
       {
         "title": "Research Existing Interfaces",
@@ -369,7 +375,8 @@
       "task_1782209385543_open": true,
       "task_1782209458733_open": true,
       "d10_open": true,
-      "task_1782208699007_open": true
+      "task_1782208699007_open": true,
+      "task_1782208655683_open": true
     }
   },
   "dates": [
