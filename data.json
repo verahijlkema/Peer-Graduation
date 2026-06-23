@@ -303,7 +303,7 @@
           {
             "id": "st_1782209399246",
             "title": "Prepare Interview Questions",
-            "done": false
+            "done": true
           },
           {
             "id": "st_1782209407455",
@@ -331,7 +331,13 @@
         "due": "2026-07-20",
         "id": "task_1782209385543",
         "done": false,
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": "st_1782209426999",
+            "title": "Prepare Interview Questions",
+            "done": false
+          }
+        ]
       }
     ],
     "taskStates": {
