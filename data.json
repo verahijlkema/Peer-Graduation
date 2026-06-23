@@ -134,7 +134,7 @@
         "phase": "discovery",
         "priority": "normal",
         "topic": "literature",
-        "done": false,
+        "done": true,
         "subtasks": [],
         "due": "2026-06-21"
       },
