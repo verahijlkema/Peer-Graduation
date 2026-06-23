@@ -240,6 +240,17 @@
         "id": "task_1782208699007",
         "done": false,
         "subtasks": []
+      },
+      {
+        "title": "Research Relevant Methodologies",
+        "desc": "",
+        "phase": "discovery",
+        "priority": "normal",
+        "topic": "literature",
+        "due": "2026-06-28",
+        "id": "task_1782208718877",
+        "done": false,
+        "subtasks": []
       }
     ],
     "taskStates": {
