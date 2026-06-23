@@ -117,6 +117,11 @@
             "id": "st_1782209314288",
             "title": "Schedult Interviews",
             "done": false
+          },
+          {
+            "id": "st_1782209337502",
+            "title": "Process transcription",
+            "done": false
           }
         ],
         "due": "2026-07-20"
@@ -143,6 +148,11 @@
           {
             "id": "st_1782209227097",
             "title": "Schedule Interviews",
+            "done": false
+          },
+          {
+            "id": "st_1782209341182",
+            "title": "Process transcription",
             "done": false
           }
         ],
